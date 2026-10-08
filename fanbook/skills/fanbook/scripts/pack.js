@@ -419,6 +419,7 @@ try {
   lines.push('');
   lines.push('- 本册为**非官方粉丝作品**，仅供个人收藏；海报/立绘版权归原作者与各制作委员会所有');
   lines.push('- 公开发布（发群、上传平台、印制售卖）前请自行评估授权 —— **注明来源不等于获得授权**');
+  if (nCards || nGallery) lines.push('- **分享卡 / 整页高清图同样内嵌作品海报（第三方素材）**：与全书同属「仅个人收藏」，发到公开平台前须自行确认授权');
   lines.push('- 中文字体为霞鹜文楷子集（SIL OFL 1.1，© LXGW ｜ © The Klee Project Authors），封底署名请勿删除');
   lines.push('- 想微调重渲：改 `' + BOOK + '.html` 后用浏览器打印为 PDF，或回到项目里重跑 `npm run pipeline`');
   if (hasEpub) lines.push('- EPUB 版（' + BOOK + '.epub）可重排、无固定页码，适合手机与电子书阅读器；改完数据后重跑 `npm run epub` 再 `npm run pack`');

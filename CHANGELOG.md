@@ -1,5 +1,3 @@
-# Changelog
-
 ## 1.9.0
 
 **个人数据有了受支持的写入入口。** 1.8.0 把 userdata 层建了起来，但"我的评分 / 短评"只能手改 JSON —— 手改最容易写坏，而 userdata 一旦坏掉构建会直接非零退出。这一版补上写入通道，并把它写进 SKILL.md 的流程。
@@ -28,6 +26,19 @@
 - 新增 `scripts/export_epub.py` 与包装 `scripts/epub.js`（`npm run epub`）：从 `anime_base.json` + `anime_research/*.json`（有 `userdata.json` 就一并读）直接渲染**可重排**的 EPUB 3 —— 封面页 / 书名总览 / 每部一章（无剧透简介 · 制作与声优 · 主题歌与观看 · 补番顺序 · 原作情报 · 更新动态 · 补记 · 收藏详情 · 剧透表 · 系列条目）/ 版权页，带 nav 目录；字体沿用 PDF 那套来源（环境变量 > `config.json` 的 `fonts.regular` > 项目根 `fonts/`）子集化后内嵌，`-- --no-font` 可关闭
 - `pack` 登记 EPUB：产物存在时进 `_deliver/`，并在交付说明的文件表与使用说明里标注；不存在**不报错**（EPUB 是可选输出）
 - 本机验证：EPUB 通过 zip 完整性 / `mimetype` 首条目且 STORED / 全部 XHTML·OPF 格式良好 / manifest·spine·相对引用零悬空；fixture 全流程 `base → pipeline（17/17）→ check → audit → epub → pack` 跑通，`_deliver/` 含 `.epub` 且交付说明列出该行
+||||||| parent of 4a3fdc7 (docs(compliance): 公开发布要授权——cards 提醒 + DISCLAIMER + README 显式化（1.7.2）)
+
+
+## 1.7.2
+
+把"公开发布要授权"这件事从**文档里的一行**变成**三个位置的显式提醒**。起因是一次外部视角的风险梳理：它把 `npm run cards`（导出社交发图用的分享卡）指为最大的引信——核实下来它说对了，那是全仓库里唯一一处**静默产出含第三方海报的可发布物料**。
+
+- **`npm run cards` 现在会打合规提醒**：导出成功后打印「`_cards/` 与 `_gallery/` 内嵌作品海报/立绘（第三方素材）……公开发布前须自行确认授权」。此前这条路径完全静默——导出成功就完事。
+- **`pack` 交付说明的「使用与版权」节**：当交付包含分享卡或整页高清图时，追加一行说明它们与全书同属"仅个人收藏"，发到公开平台前须自行确认授权。
+- **新增仓库根 `DISCLAIMER.md`**：工具是 MIT，但产物里的素材权利属于原作者；个人自用 / 公开发布 / 商业使用的边界、字体署名、内容边界、责任范围，一页说清。README 顶部与 `references/compliance.md` 均已指路。
+- **README 顶部加一行**：「公开发布 = 必须自行取得授权」——原话只活在 compliance.md 与交付说明里，clone 的人第一眼看不到。
+- **保持不变**：默认仍产出含官方海报的收藏册。海报墙是产品核心，个人自用受个人使用例外保护；栅栏立在"公开发布"这一侧，而不是阉割默认输出。
+- 本机验证：`npm run cards` 退出码 0 且打出提醒；`pack` 交付说明含新增的卡片授权行。
 
 ## 1.7.1
 

@@ -15,6 +15,8 @@
 这是一个给 **AI agent**（Claude Code / ZCode / Cursor 等，需具备文件读写 + Shell + 联网 + 读图能力）使用的 skill，符合 [Agent Skills 开放格式](https://code.claude.com/docs/en/skills)（SKILL.md + 附属脚本），同时按 Claude Code **插件市场**规范打包。
 
 > 以下效果图为 **虚构演示作品**（`evals/fixture/`，含程序生成的示例封面）——真实书本使用官方海报时请遵守下方「关于素材版权」。
+>
+> **公开发布 = 必须自行取得授权**：本工具是 MIT，但它产出的册子里装的是别人的作品（海报 / 立绘 / 文字），那部分权利**不随工具许可授予你**。个人自用通常没问题；发群、上传平台、印制售卖前请自行确认授权。完整立场见 [DISCLAIMER.md](DISCLAIMER.md) 与 [`references/compliance.md`](fanbook/skills/fanbook/references/compliance.md)。
 
 ## 为什么做它（四个踩过的坑）
 
