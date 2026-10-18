@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SKILL_DIR = path.resolve(__dirname, '..');            // <skill>/scripts/.. = <skill>
-const REPO = path.resolve(SKILL_DIR, '..', '..', '..');     // <repo>/fanbook/skills/<skill> → <repo>
+const REPO = path.resolve(SKILL_DIR, '..', '..', '..');     // <repo>/fandex/skills/<skill> → <repo>
 const CHECK = process.argv.includes('--check');
 const FIX = process.argv.includes('--fix');
 
@@ -67,7 +67,7 @@ add(path.join(SKILL_DIR, 'scripts', 'package.json'), 'scripts 包');
 add(path.join(SKILL_DIR, 'scripts', 'package-lock.json'), 'lock（npm 自动维护，建议随之更新）');
 add(path.join(REPO, '.claude-plugin', 'marketplace.json'), '插件市场');
 // 插件清单：<repo>/**/.claude-plugin/plugin.json 与 .zcode-plugin/plugin.json
-for (const dir of ['fanbook', '']) {
+for (const dir of ['fandex', '']) {
   for (const p of ['.claude-plugin', '.zcode-plugin']) {
     add(path.join(REPO, dir, p, 'plugin.json'), '插件清单 ' + path.join(dir, p));
   }

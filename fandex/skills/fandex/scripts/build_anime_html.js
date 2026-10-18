@@ -653,7 +653,7 @@ const backPage = `<div class="page back-pg" style="${varsFor(DEFAULT_ACCENT)}">
   <div class="bk-end">完</div>
   <div class="bk-title">${esc(BOOK_TITLE)}</div>
   <div class="bk-line">${yearSpan || NOW} · ${shows.length} ${L.person} · ${grand} ${L.chapName}</div>
-  <div class="bk-cred">${L.m2} · ${NOW} · Generated with fanbook</div>
+  <div class="bk-cred">${L.m2} · ${NOW} · Generated with fandex</div>
   <div class="bk-src">${esc(CFG.credits || DEFAULT_CREDITS)}</div>
   <div class="bk-notice">${esc(NOTICE)}</div>
   <div class="bk-font">本册中文字体：霞鹜文楷 LXGW WenKai（SIL OFL 1.1）｜© LXGW｜© The Klee Project Authors（基于 FONTWORKS「Klee One」衍生）</div>

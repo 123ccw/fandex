@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""fanbook EPUB 导出（其他输出形态的第一步）
+"""fandex EPUB 导出（其他输出形态的第一步）
 
 把 <项目根> 的 anime_base.json + anime_research/*.json（可选 userdata.json）渲染成
 可重排的 EPUB 3：封面页 → 目录 → 总览 → 每部一章 → 版权页。
@@ -95,7 +95,7 @@ def tags(texts):
     return out
 
 def main():
-    ap = argparse.ArgumentParser(description="fanbook EPUB 导出")
+    ap = argparse.ArgumentParser(description="fandex EPUB 导出")
     ap.add_argument("--root")
     ap.add_argument("--title")
     ap.add_argument("--out")
@@ -139,7 +139,7 @@ def main():
 
     shows = list(base.values())
     now = datetime.datetime.now().strftime("%Y-%m-%d")
-    uid = "urn:uuid:" + str(uuid.uuid5(uuid.NAMESPACE_URL, "fanbook:" + title + ":" + str(len(shows))))
+    uid = "urn:uuid:" + str(uuid.uuid5(uuid.NAMESPACE_URL, "fandex:" + title + ":" + str(len(shows))))
 
     # ---- 图片收集 ----
     images = []          # (zip 路径, 绝对路径, media-type)
@@ -309,7 +309,7 @@ def main():
         "<h1>版权与来源</h1>"
         "<p>" + xesc(credits) + "</p>"
         "<p class='small'>本册为非官方粉丝作品，仅供个人收藏与学习交流；作品、角色与海报版权归各自权利人所有，请勿用于商业用途。</p>"
-        "<p class='small'>由 fanbook（番剧收藏册引擎）导出 · " + xesc(now) + "</p>")
+        "<p class='small'>由 fandex（番剧收藏册引擎）导出 · " + xesc(now) + "</p>")
 
     # ---- 内嵌字体（子集）----
     font_zip = None
@@ -375,7 +375,7 @@ def main():
            '<dc:identifier id="bookid">' + uid + "</dc:identifier>\n"
            "<dc:title>" + xesc(title) + "</dc:title>\n"
            "<dc:language>zh-CN</dc:language>\n"
-           "<dc:creator>" + xesc("fanbook") + "</dc:creator>\n"
+           "<dc:creator>" + xesc("fandex") + "</dc:creator>\n"
            '<meta property="dcterms:modified">' + datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "</meta>\n"
            + ('<meta name="cover" content="cover-img"/>\n' if cover_img else "")
            + "</metadata>\n<manifest>\n" + "\n".join(manifest) + "\n</manifest>\n<spine>\n"

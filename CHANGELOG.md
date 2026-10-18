@@ -1,8 +1,15 @@
 # Changelog
 
-## 1.10.0
+## 1.11.0
 
-**输出更完整、跨平台更稳。** 这一版把 10-17 那次本机试验里验证过的「数说页补充统计 / 封面墙扩容 / 版式微调」正式并入主干，并补上 Windows 与自定义 Python 两条环境短板；同时把一直挂在分支上的 1.7.2 合规工作一并收编。
+**改名 + 输出/跨平台改进一起发布。** `fanbook` → **`fandex`**（fan + index／dex：番剧收藏册 / 小说设定集，本质都是"把喜欢的东西编成一本可检索、可收藏的册子"）。同时把 10-17 那次本机试验里验证过的「数说页补充统计 / 封面墙扩容 / 版式微调」正式并入主干，补上 Windows 与自定义 Python 两条环境短板，并把一直挂在分支上的 1.7.2 合规工作一并收编。旧 GitHub 仓库 URL 会自动重定向。
+
+### 改名：fanbook → FanDex
+- skill 名 / 目录 / 插件名统一为 `fandex`（skill 目录 `skills/fandex/`，插件显示名 **FanDex**）；`lint_skill.js` 的 name↔目录一致性检查已通过
+- 安装命令变为 `/plugin marketplace add 123ccw/fandex` + `/plugin install fandex@fandex`；旧仓库 URL 由 GitHub 自动重定向
+- 脚本包名 `fandex-scripts`、生成物页脚、`pack` 的 `tool` 字段、`fetch_candidates` 的 UA 一并更名；共 93 处引用 / 17 个文件
+- 本机安装目录与 DSH `skill_select` 使用记录同步改名（`~/.dsh/skills/fandex`），项目数据与 `config.json` 不动
+- 版本 1.10.0 → **1.11.0**（插件/skill 改名属用户可见变更，按 minor 发布）
 
 ### 数说页与封面
 - 数说页底部新增一排 **4 列紧凑小卡**：单元构成、时长估算、平均评分、类型 TOP3（数据为空自动省略；单独用 `.alm-mini` 小字号，不把数说页撑到第二页）

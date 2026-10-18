@@ -18,25 +18,25 @@ jobs:
           node-version: 20
       - name: 全部脚本语法检查
         run: |
-          for f in fanbook/skills/fanbook/scripts/*.js \
-                   fanbook/skills/fanbook/evals/*.js; do
+          for f in fandex/skills/fandex/scripts/*.js \
+                   fandex/skills/fandex/evals/*.js; do
             echo "check $f"
             node --check "$f"
           done
       - name: 校验插件清单为合法 JSON
         run: |
-          node -e "for (const p of ['.claude-plugin/marketplace.json','fanbook/.claude-plugin/plugin.json','fanbook/.zcode-plugin/plugin.json','fanbook/skills/fanbook/scripts/package.json']) { JSON.parse(require('fs').readFileSync(p,'utf8')); console.log('OK', p); }"
+          node -e "for (const p of ['.claude-plugin/marketplace.json','fandex/.claude-plugin/plugin.json','fandex/.zcode-plugin/plugin.json','fandex/skills/fandex/scripts/package.json']) { JSON.parse(require('fs').readFileSync(p,'utf8')); console.log('OK', p); }"
       - name: 校验版本号一致（单一事实源：scripts/sync_version.js）
-        run: node fanbook/skills/fanbook/scripts/sync_version.js --check
+        run: node fandex/skills/fandex/scripts/sync_version.js --check
       - name: 校验 skill 信封（frontmatter / 引用完整性 / 文档数字与代码是否一致）
-        run: node fanbook/skills/fanbook/evals/lint_skill.js
+        run: node fandex/skills/fandex/evals/lint_skill.js
       - name: 信封卫生（本机配置与依赖不得入库）
         run: |
           bad=$(git ls-files | grep -E '(^|/)node_modules/|(^|/)config\.json$' || true)
           if [ -n "$bad" ]; then
             echo "::error::skill 信封里不该出现这些（本机配置 / 依赖）："; echo "$bad"; exit 1
           fi
-          test -f fanbook/skills/fanbook/scripts/config.example.json || { echo "::error::config.example.json 丢了"; exit 1; }
+          test -f fandex/skills/fandex/scripts/config.example.json || { echo "::error::config.example.json 丢了"; exit 1; }
           echo "✓ 信封干净：无 node_modules、无 config.json（模板 config.example.json 在位）"
 
   fixture:
@@ -50,7 +50,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: 装脚本依赖（含 Chromium）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         run: |
           npm ci
           npx playwright install --with-deps chromium
@@ -59,7 +59,7 @@ jobs:
 
       - name: 准备 fixture 项目根（含程序生成的测试字体）
         run: |
-          SKILL="$PWD/fanbook/skills/fanbook"
+          SKILL="$PWD/fandex/skills/fandex"
           ROOT="$RUNNER_TEMP/acb-eval"
           rm -rf "$ROOT" && mkdir -p "$ROOT"
           cp -r "$SKILL/evals/fixture/." "$ROOT/"
@@ -70,7 +70,7 @@ jobs:
           echo "ACB_SKILL=$SKILL" >> "$GITHUB_ENV"
 
       - name: 模式 A 合成 + 两轮 pipeline
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
           ANIME_BOOK_FONT_REGULAR: ${{ env.ACB_ROOT }}/fonts/Smoke-Regular.ttf
@@ -80,7 +80,7 @@ jobs:
           npm run pipeline
 
       - name: 产物断言 + 数据审计（并留下收据）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -91,7 +91,7 @@ jobs:
           node -e "const c=require(process.env.ANIME_BOOK_ROOT+'/anime_build/_check.json');console.log('check',JSON.stringify(c.counts),JSON.stringify(c.failures))"
 
       - name: 负向测试 ① 封面缺失必须被抓住
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -107,7 +107,7 @@ jobs:
           echo "✓ 封面缺失 → check 失败并报 [C7]"
 
       - name: 负向测试 ② 页码未收敛必须被抓住
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -124,7 +124,7 @@ jobs:
           echo "✓ 页码漂移 → check 失败并报 [C12]"
 
       - name: 负向测试 ③ 交付诚实性（无收据 / 未声明必须被标注）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -141,7 +141,7 @@ jobs:
       # ---- 以下几条对应 2026-10 审计发现的真实缺陷（每条都先复现过）----
 
       - name: 负向测试 ④ 书名与某部作品名相同时，目录页码不得取到前置页
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
           ANIME_BOOK_TITLE: 星海旅人
@@ -170,7 +170,7 @@ jobs:
           echo "✓ 书名撞作品名 → 页码正确且 [C17] 无重复书签；[C18] 缺失能被抓住"
 
       - name: 负向测试 ④b [C17] 必须能抓到重复书签（防新断言恒真）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -188,7 +188,7 @@ jobs:
           echo "✓ 重复书签 → check 失败并报 [C17]"
 
       - name: 恢复默认书名与收据
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
           ANIME_BOOK_FONT_REGULAR: ${{ env.ACB_ROOT }}/fonts/Smoke-Regular.ttf
@@ -206,7 +206,7 @@ jobs:
           npm run audit >/dev/null || true
 
       - name: 负向测试 ⑤ --force 不得删除用户目录里的非本工具文件
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -223,7 +223,7 @@ jobs:
           echo "✓ 非本工具目录被拒绝，用户文件完好无损"
 
       - name: 负向测试 ⑥ 交付包不得含本机绝对路径（台账泄漏）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -242,7 +242,7 @@ jobs:
           echo "✓ 台账已产出，且交付包内无本机绝对路径"
 
       - name: 负向测试 ⑦ 伪造/串项目的收据不得被标成"全部通过"
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_ROOT }}
         run: |
@@ -258,7 +258,7 @@ jobs:
 
       - name: 准备 novel fixture 项目根（第二领域包）
         run: |
-          SKILL="$PWD/fanbook/skills/fanbook"
+          SKILL="$PWD/fandex/skills/fandex"
           ROOT="$RUNNER_TEMP/acb-novel"
           rm -rf "$ROOT" && mkdir -p "$ROOT/fonts"
           cp -r "$SKILL/evals/fixture-novel/." "$ROOT/"
@@ -266,7 +266,7 @@ jobs:
           echo "ACB_NOVEL_ROOT=$ROOT" >> "$GITHUB_ENV"
 
       - name: novel 领域包必须跑通且 check 全绿
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_NOVEL_ROOT }}
           ANIME_BOOK_DOMAIN: novel
@@ -283,7 +283,7 @@ jobs:
           echo "✓ novel 跑通；角色未声明 cover 按设计降级，不再判 [C7] 失败"
 
       - name: 负向测试 ⑧ novel 下「声明了 cover 却缺文件」仍必须被抓住
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ env.ACB_NOVEL_ROOT }}
           ANIME_BOOK_DOMAIN: novel
@@ -321,7 +321,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: 装脚本依赖（含 Chromium）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         run: |
           npm ci
           npx playwright install chromium
@@ -329,7 +329,7 @@ jobs:
         run: python -m pip install fonttools brotli
       - name: 准备 fixture 项目根（含程序生成的测试字体）
         run: |
-          $SKILL = Join-Path $PWD "fanbook/skills/fanbook"
+          $SKILL = Join-Path $PWD "fandex/skills/fandex"
           $ROOT = Join-Path $env:RUNNER_TEMP "acb-eval-win"
           if (Test-Path $ROOT) { Remove-Item $ROOT -Recurse -Force }
           New-Item -ItemType Directory -Path $ROOT | Out-Null
@@ -338,7 +338,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "make_smoke_font 失败" }
           Write-Host "fixture root: $ROOT"
       - name: 两轮 pipeline + check（Windows 主目标平台）
-        working-directory: fanbook/skills/fanbook/scripts
+        working-directory: fandex/skills/fandex/scripts
         env:
           ANIME_BOOK_ROOT: ${{ runner.temp }}\acb-eval-win
           ANIME_BOOK_FONT_REGULAR: ${{ runner.temp }}\acb-eval-win\fonts\Smoke-Regular.ttf

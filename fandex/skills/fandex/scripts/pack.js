@@ -426,7 +426,7 @@ try {
   lines.push('');
   fs.writeFileSync(path.join(TMP, '交付说明.md'), lines.join('\n'), 'utf8');
   fs.writeFileSync(path.join(TMP, MARKER), JSON.stringify({
-    tool: 'fanbook/pack',
+    tool: 'fandex/pack',
     packedAt: new Date().toISOString(),
     book: BOOK,
     pages,

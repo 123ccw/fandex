@@ -1,6 +1,6 @@
 {
-  "name": "fanbook-scripts",
-  "version": "1.10.0",
+  "name": "fandex-scripts",
+  "version": "1.11.0",
   "private": true,
   "description": "番剧收藏册 PDF 管线脚本（先 npm i；再改 config.json 的 root；然后 npm run pipeline）",
   "scripts": {
