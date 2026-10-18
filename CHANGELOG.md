@@ -6,6 +6,7 @@
 
 ### 改名：fanbook → FanDex
 - skill 名 / 目录 / 插件名统一为 `fandex`（skill 目录 `skills/fandex/`，插件显示名 **FanDex**）；`lint_skill.js` 的 name↔目录一致性检查已通过
+- 中文名定为 **「番剧档案生成」**（插件 zh-CN 显示名、README / SKILL 标题与描述同步）
 - 安装命令变为 `/plugin marketplace add 123ccw/fandex` + `/plugin install fandex@fandex`；旧仓库 URL 由 GitHub 自动重定向
 - 脚本包名 `fandex-scripts`、生成物页脚、`pack` 的 `tool` 字段、`fetch_candidates` 的 UA 一并更名；共 93 处引用 / 17 个文件
 - 本机安装目录与 DSH `skill_select` 使用记录同步改名（`~/.dsh/skills/fandex`），项目数据与 `config.json` 不动

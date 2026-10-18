@@ -1,6 +1,6 @@
-# FanDex
+# FanDex · 番剧档案生成
 
-> 原名 `anime-collection-book` → `fanbook`（1.7.0）→ **`fandex`（1.11.0）**：fan + index／dex——无论番剧收藏册还是小说设定集，本质都是把喜欢的东西编成一本可检索、可收藏的册子。旧仓库链接由 GitHub 自动重定向。
+> 原名 `anime-collection-book` → `fanbook`（1.7.0）→ **`fandex`（1.11.0）**，中文名 **「番剧档案生成」**。fan + index／dex：无论番剧收藏册还是小说设定集，本质都是把喜欢的东西编成一本可检索、可收藏的册子。旧仓库链接由 GitHub 自动重定向。
 
 把一份**番剧名字清单**（或本机视频收藏库）做成一本"杂志风"PDF 收藏册：
 
