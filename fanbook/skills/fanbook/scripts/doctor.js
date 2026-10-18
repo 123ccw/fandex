@@ -171,7 +171,7 @@ head('Python（字体子集用）');
 // 与 collect_fonts / epub 共用 _python.js 的探测顺序（ANIME_BOOK_PYTHON > PYTHON > .venv > 常见目录 > PATH）
 const py = findPython({ requireFontTools: true, projectRoot: ROOT });
 if (py) {
-  ok('找到 ' + py.cmd + '（' + py.version + '，fontTools + brotli 可用' + (py.source !== 'PATH' ? '；来自 ' + py.source : '') + '）');
+  ok('找到 ' + (py.display || py.cmd) + '（' + py.version + '，fontTools + brotli 可用' + (py.source !== 'PATH' ? '；来自 ' + py.source : '') + '）');
 } else {
   const anyPy = run('python', ['--version']) || run('python3', ['--version']);
   if (anyPy) no('有 Python（' + anyPy + '）但缺 fontTools/brotli', 'pip install fonttools brotli');

@@ -86,7 +86,8 @@ const { findPython, missingMessage } = require('./_python');
 const PYF = findPython({ requireFontTools: true, projectRoot: ROOT });
 if (!PYF) { console.error(missingMessage(true)); process.exit(1); }
 const PY = PYF.cmd;
-if (PYF.source !== 'PATH') console.log('python: ' + PY + '（来自 ' + PYF.source + '）');
+const PY_ARGS = PYF.args || [];   // Windows 的 py 启动器需要 `py -3 ...`
+if (PYF.source !== 'PATH') console.log('python: ' + (PYF.display || PY) + '（来自 ' + PYF.source + '）');
 // 源字体缺失时先给中文提示——否则 fontTools 抛的错看不懂
 for (const ttf of [TTF_R, TTF_M]) {
   if (!fs.existsSync(ttf)) {
@@ -99,7 +100,7 @@ for (const ttf of [TTF_R, TTF_M]) {
 function subsetTo(ttf, out) {
   const tmp = out + '.tmp';
   try {
-    execFileSync(PY, args(ttf, tmp), { stdio: 'inherit' });
+    execFileSync(PY, PY_ARGS.concat(args(ttf, tmp)), { stdio: 'inherit' });
     fs.renameSync(tmp, out);
   } catch (e) {
     try { fs.rmSync(tmp, { force: true }); } catch (_) {}

@@ -14,5 +14,5 @@ if (!PYF) {
 }
 
 const args = [path.join(__dirname, 'export_epub.py')].concat(process.argv.slice(2));
-const r = spawnSync(PYF.cmd, args, { stdio: 'inherit' });
+const r = spawnSync(PYF.cmd, (PYF.args || []).concat(args), { stdio: 'inherit' });
 process.exit(r.status === null ? 1 : r.status);

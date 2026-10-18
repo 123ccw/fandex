@@ -13,7 +13,8 @@
 - 类型排行/年代分布的长标签加省略号，避免撑破统计卡
 
 ### 跨平台 Python
-- 新增 `scripts/_python.js` 统一探测：`ANIME_BOOK_PYTHON` > `PYTHON` > `PYTHON3` > 项目根 `.venv/venv` > Windows 常见安装目录 > PATH；`collect_fonts` / `epub` / `doctor` 共用同一实现
+- 新增 `scripts/_python.js` 统一探测：`ANIME_BOOK_PYTHON` > `PYTHON` > `PYTHON3` > 项目根 `.venv/venv` > **Windows `py -3` 启动器** > Windows 常见安装目录 > PATH；`collect_fonts` / `epub` / `doctor` 共用同一实现
+- Windows 上 `python.exe` 常只是 Microsoft Store 的占位 stub。新增 `py -3` 启动器与 `%LOCALAPPDATA%\Python\pythoncore-*`（新版 Python Install Manager 布局）探测：Python 装好了但没进 PATH 的机器（本机实测 Python 3.14 + fontTools）不用设任何环境变量即可跑 pipeline
 - 装了 Python 但没进 PATH（DSH 内置 runtime、conda、Microsoft Store 版都常见）不再只报「没找到 Python」，按提示设 `ANIME_BOOK_PYTHON` 即可
 - `doctor`：CI / 自测用 `ANIME_BOOK_ROOT` 覆盖时，缺 `config.json` 不再算阻塞；Python 一栏显示解释器路径、版本与来源
 
