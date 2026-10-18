@@ -27,7 +27,7 @@
 ```bash
 npm run doctor     # 环境自检（node / python+fonttools / 字体 / 浏览器 / curl / tvly / config / 重复安装；加 --net 顺带探网络）
 npm run pipeline   # 字体子集 → 两轮「构建→渲染→页码反查」，一条命令跑完
-npm run check      # 产物断言（完整性 / 页码全命中 / 无乱码 / 两轮收敛 / PDF 层，共 17 条；会自动先跑 probe）
+npm run check      # 产物断言（完整性 / 页码全命中 / 无乱码 / 两轮收敛 / PDF 层，共 18 条；会自动先跑 probe）
 npm run probe      # 只跑 PDF 层深检（pdfjs 提正文 + 读书签）→ 写 anime_build/_pdfprobe.json
 npm run audit      # 数据完备度（哪部缺字段、哪些还写着"未核实"、剧透表对不对得上）
 npm run sheet      # 生成全页联络表（目检用；也支持任意 PDF：node contact_sheet.js --pdf <路径> --out <目录> [--scale <n>]）
@@ -75,7 +75,7 @@ node anime_pagemap.js      # ④ 从书签反查每部起始页 → _pagemap.jso
 
 | 行 | 来源 | 谁能证明 |
 | --- | --- | --- |
-| 产物断言 `[C1]-[C17]` | `anime_build/_check.json` | 脚本，可复现 |
+| 产物断言 `[C1]-[C18]` | `anime_build/_check.json` | 脚本，可复现 |
 | 数据完备度 `[A1]-[A10]` | `anime_build/_audit.json` | 脚本，可复现 |
 | **全页目检** | `pack --pages-reviewed` 签署 | **只有 agent 的声明**（`npm run sheet` 的 PNG 是证据材料，不是证据） |
 | **封面逐张目检** | `pack --covers-reviewed` 签署 | 同上 |

@@ -1,3 +1,45 @@
+# Changelog
+
+## 1.10.0
+
+**输出更完整、跨平台更稳。** 这一版把 10-17 那次本机试验里验证过的「数说页补充统计 / 封面墙扩容 / 版式微调」正式并入主干，并补上 Windows 与自定义 Python 两条环境短板；同时把一直挂在分支上的 1.7.2 合规工作一并收编。
+
+### 数说页与封面
+- 数说页底部新增一排 **4 列紧凑小卡**：单元构成、时长估算、平均评分、类型 TOP3（数据为空自动省略；单独用 `.alm-mini` 小字号，不把数说页撑到第二页）
+- 时长估算按单元类型加权：**TV 24 / OVA・特别篇 30 / 剧场版 110 分钟**；不再用「总集数 × 24」把剧场版当 1 集算
+- 封面墙 9 → **15 张**；超过 9 张自动切 5 列（3×5）；封面页改为**标题沉底、海报垂直居中**，15 部规模下版式更稳
+- 表格行距与长表格字号收紧（`td` padding 1.5 → 1.15mm、`td.sop` 8.8 → 8.4pt），减少跨页
+- 修复**角色名本身含中点**时演员解析拆错（如「泽村·斯潘塞·英梨梨」）：先按「角色（CV）」拆，再退回中点拆分
+- 类型排行/年代分布的长标签加省略号，避免撑破统计卡
+
+### 跨平台 Python
+- 新增 `scripts/_python.js` 统一探测：`ANIME_BOOK_PYTHON` > `PYTHON` > `PYTHON3` > 项目根 `.venv/venv` > Windows 常见安装目录 > PATH；`collect_fonts` / `epub` / `doctor` 共用同一实现
+- 装了 Python 但没进 PATH（DSH 内置 runtime、conda、Microsoft Store 版都常见）不再只报「没找到 Python」，按提示设 `ANIME_BOOK_PYTHON` 即可
+- `doctor`：CI / 自测用 `ANIME_BOOK_ROOT` 覆盖时，缺 `config.json` 不再算阻塞；Python 一栏显示解释器路径、版本与来源
+
+### 验收与 CI
+- 新增 **`[C18]`** 断言：数说页必须含补充统计块（按数据条件检查）；断言 17 → **18 条**
+- CI 新增 **windows-latest 真流程 job**：两轮 pipeline + check + audit——Windows 是脚本的第一目标平台，此前 CI 只有 ubuntu
+- CI ④ 步骤新增 [C18] 负向测试：删掉数说页统计块后 check 必须失败并报 [C18]（防新断言恒真）
+- `sync_version.js` 现在同时校验/同步 `package-lock.json` 的 `packages[""].version`（此前只改顶层，lock 里残留 1.5.0 会在 `npm install` 时把版本带回去）
+
+### 合规（并入原 1.7.2 分支）
+- **`npm run cards` 现在会打合规提醒**：导出成功后打印「`_cards/` 与 `_gallery/` 内嵌作品海报/立绘（第三方素材）……公开发布前须自行确认授权」。此前这条路径完全静默——导出成功就完事。
+- **`pack` 交付说明的「使用与版权」节**：当交付包含分享卡或整页高清图时，追加一行说明它们与全书同属"仅个人收藏"，发到公开平台前须自行确认授权。
+- **新增仓库根 `DISCLAIMER.md`**：工具是 MIT，但产物里的素材权利属于原作者；个人自用 / 公开发布 / 商业使用的边界、字体署名、内容边界、责任范围，一页说清。README 顶部与 `references/compliance.md` 均已指路。
+- **README 顶部加一行**：「公开发布 = 必须自行取得授权」——原话只活在 compliance.md 与交付说明里，clone 的人第一眼看不到。
+- **保持不变**：默认仍产出含官方海报的收藏册。海报墙是产品核心，个人自用受个人使用例外保护；栅栏立在"公开发布"这一侧，而不是阉割默认输出。
+- 本机验证：`npm run cards` 退出码 0 且打出提醒；`pack` 交付说明含新增的卡片授权行。
+
+### 文档
+- 同步全部「断言条数 / 错误码」表述（17 → 18），`evals/README.md` 错误码表补 `[C18]`
+- README 数说页文案与效果图更新；`SKILL.md` 描述补充数说页统计项
+
+### 验证
+- anime / novel fixture：两轮 pipeline 收敛，`check` **18/18**，`audit` 行为符合预期
+- `test:userdata` 13/13；`lint` 0 错 0 提醒；`sync_version --check` 6 处一致
+- 真机（Windows + DSH 内置 Python，不在 PATH）用 `ANIME_BOOK_PYTHON` 跑通完整 pipeline
+
 ## 1.9.0
 
 **个人数据有了受支持的写入入口。** 1.8.0 把 userdata 层建了起来，但"我的评分 / 短评"只能手改 JSON —— 手改最容易写坏，而 userdata 一旦坏掉构建会直接非零退出。这一版补上写入通道，并把它写进 SKILL.md 的流程。
@@ -26,19 +68,7 @@
 - 新增 `scripts/export_epub.py` 与包装 `scripts/epub.js`（`npm run epub`）：从 `anime_base.json` + `anime_research/*.json`（有 `userdata.json` 就一并读）直接渲染**可重排**的 EPUB 3 —— 封面页 / 书名总览 / 每部一章（无剧透简介 · 制作与声优 · 主题歌与观看 · 补番顺序 · 原作情报 · 更新动态 · 补记 · 收藏详情 · 剧透表 · 系列条目）/ 版权页，带 nav 目录；字体沿用 PDF 那套来源（环境变量 > `config.json` 的 `fonts.regular` > 项目根 `fonts/`）子集化后内嵌，`-- --no-font` 可关闭
 - `pack` 登记 EPUB：产物存在时进 `_deliver/`，并在交付说明的文件表与使用说明里标注；不存在**不报错**（EPUB 是可选输出）
 - 本机验证：EPUB 通过 zip 完整性 / `mimetype` 首条目且 STORED / 全部 XHTML·OPF 格式良好 / manifest·spine·相对引用零悬空；fixture 全流程 `base → pipeline（17/17）→ check → audit → epub → pack` 跑通，`_deliver/` 含 `.epub` 且交付说明列出该行
-||||||| parent of 4a3fdc7 (docs(compliance): 公开发布要授权——cards 提醒 + DISCLAIMER + README 显式化（1.7.2）)
 
-
-## 1.7.2
-
-把"公开发布要授权"这件事从**文档里的一行**变成**三个位置的显式提醒**。起因是一次外部视角的风险梳理：它把 `npm run cards`（导出社交发图用的分享卡）指为最大的引信——核实下来它说对了，那是全仓库里唯一一处**静默产出含第三方海报的可发布物料**。
-
-- **`npm run cards` 现在会打合规提醒**：导出成功后打印「`_cards/` 与 `_gallery/` 内嵌作品海报/立绘（第三方素材）……公开发布前须自行确认授权」。此前这条路径完全静默——导出成功就完事。
-- **`pack` 交付说明的「使用与版权」节**：当交付包含分享卡或整页高清图时，追加一行说明它们与全书同属"仅个人收藏"，发到公开平台前须自行确认授权。
-- **新增仓库根 `DISCLAIMER.md`**：工具是 MIT，但产物里的素材权利属于原作者；个人自用 / 公开发布 / 商业使用的边界、字体署名、内容边界、责任范围，一页说清。README 顶部与 `references/compliance.md` 均已指路。
-- **README 顶部加一行**：「公开发布 = 必须自行取得授权」——原话只活在 compliance.md 与交付说明里，clone 的人第一眼看不到。
-- **保持不变**：默认仍产出含官方海报的收藏册。海报墙是产品核心，个人自用受个人使用例外保护；栅栏立在"公开发布"这一侧，而不是阉割默认输出。
-- 本机验证：`npm run cards` 退出码 0 且打出提醒；`pack` 交付说明含新增的卡片授权行。
 
 ## 1.7.1
 

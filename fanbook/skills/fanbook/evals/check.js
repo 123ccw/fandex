@@ -200,6 +200,29 @@ t('[C17] 书签标题无重复（重复会让页码反查取错页）',
         ? '重复书签：' + dupTitles.join('、') + ' —— 典型原因：书名与某部作品名相同（总览页标题也进了书签）；改书名，或让总览页标题不生成书签'
         : '探针没解析出任何作品名（anime_base.json / anime_research 有问题）')));
 
+// ⑫ 数说页新增统计（单元构成 / 时长估算 / 类型 TOP3 / 平均评分）：纯呈现层，坏了不会影响页码，
+//    但"类型排行/时长"是 v1.10 的主要卖点，静默消失很难被发现 → 按数据条件断言。
+let anyMultiGenre = false, anyRating = false;
+if (base && DOMAIN === 'anime') {
+  for (const r of Object.values(base)) {
+    try {
+      const j = JSON.parse(fs.readFileSync(P('anime_research', r.folder + '.json'), 'utf8'));
+      if (Array.isArray(j.genres) && j.genres.length > 1) anyMultiGenre = true;
+      if (Array.isArray(j.rating) && j.rating.some(x => x && Number(x.score) > 0)) anyRating = true;
+    } catch (e) { /* 缺调研稿由 [C3]/[A1] 报，这里不重复 */ }
+  }
+}
+const miniNeed = DOMAIN === 'anime' ? [
+  html.includes('单元构成'),
+  html.includes('时长估算'),
+  !anyMultiGenre || html.includes('类型 TOP3'),
+  !anyRating || html.includes('平均评分'),
+] : [true];
+t('[C18] 数说页含补充统计（单元构成 / 时长估算 / 类型 TOP3 / 平均评分）',
+  miniNeed.every(Boolean),
+  DOMAIN !== 'anime' ? 'novel 域不适用（跳过）'
+    : '数说页缺少补充统计块 —— 检查 build_anime_html.js 的 miniBlocks / stats 逻辑是否被改坏');
+
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败' + (fail ? '（回到 SKILL.md 的坑位清单排查）' : ''));
 writeReceipt(fail ? 1 : 0);
 process.exit(fail ? 1 : 0);

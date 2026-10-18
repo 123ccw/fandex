@@ -81,15 +81,12 @@ console.log('unique chars:', chars.size);
 const args = (ttf, out) => ['-m', 'fontTools.subset', ttf,
   `--text-file=${CHARS_TXT}`, '--flavor=woff2', `--output-file=${out}`,
   '--layout-features=*', '--no-hinting'];
-// 跨平台 python 探测：macOS/Linux 默认是 python3，Windows 多是 python
-function pickPython() {
-  for (const cmd of ['python3', 'python']) {
-    try { execFileSync(cmd, ['-c', 'import fontTools, brotli'], { stdio: 'ignore' }); return cmd; } catch (e) { /* 试下一个 */ }
-  }
-  return '';
-}
-const PY = pickPython();
-if (!PY) { console.error('未找到带 fonttools+brotli 的 Python。请先执行: pip install fonttools brotli'); process.exit(1); }
+// 跨平台 python 探测走 scripts/_python.js（ANIME_BOOK_PYTHON / PYTHON / .venv / PATH 统一优先级）
+const { findPython, missingMessage } = require('./_python');
+const PYF = findPython({ requireFontTools: true, projectRoot: ROOT });
+if (!PYF) { console.error(missingMessage(true)); process.exit(1); }
+const PY = PYF.cmd;
+if (PYF.source !== 'PATH') console.log('python: ' + PY + '（来自 ' + PYF.source + '）');
 // 源字体缺失时先给中文提示——否则 fontTools 抛的错看不懂
 for (const ttf of [TTF_R, TTF_M]) {
   if (!fs.existsSync(ttf)) {

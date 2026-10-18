@@ -155,7 +155,19 @@ jobs:
           node -e "const m=require(process.env.ANIME_BOOK_ROOT+'/anime_build/_pagemap.json');const p=m['星海旅人'];if(!(p>2)){console.error('::error::书名=作品名时页码取到了前置页：'+p);process.exit(1)}console.log('✓ 页码 =',p)"
           # [C17] 必须绿：书签里不能有重复的"当键用"标题
           npm run check >/dev/null || { echo "::error::书名=作品名时 check 未全绿"; exit 1; }
-          echo "✓ 书名撞作品名 → 页码正确且 [C17] 无重复书签"
+          # [C18] 负向：把数说页统计文字从 HTML 删掉，check 必须失败并报 [C18]（防新断言恒真）
+          H="$ANIME_BOOK_ROOT/anime_build/$ANIME_BOOK_TITLE.html"
+          cp "$H" "$RUNNER_TEMP/book.html"
+          node -e "const fs=require('fs');const f=process.env.ANIME_BOOK_ROOT+'/anime_build/'+process.env.ANIME_BOOK_TITLE+'.html';let t=fs.readFileSync(f,'utf8');t=t.split('单元构成').join('');fs.writeFileSync(f,t)"
+          set +e
+          node ../evals/check.js > "$RUNNER_TEMP/negative4c.log" 2>&1
+          code=$?
+          set -e
+          cp "$RUNNER_TEMP/book.html" "$H"
+          cat "$RUNNER_TEMP/negative4c.log"
+          if [ "$code" -eq 0 ]; then echo "::error::删掉数说页统计后 check 竟然通过了（[C18] 形同虚设）"; exit 1; fi
+          grep -q '\[C18\]' "$RUNNER_TEMP/negative4c.log" || { echo "::error::失败信息里没有 [C18]"; exit 1; }
+          echo "✓ 书名撞作品名 → 页码正确且 [C17] 无重复书签；[C18] 缺失能被抓住"
 
       - name: 负向测试 ④b [C17] 必须能抓到重复书签（防新断言恒真）
         working-directory: fanbook/skills/fanbook/scripts
@@ -291,3 +303,53 @@ jobs:
           if [ "$code" -eq 0 ]; then echo "::error::novel 下声明了不存在的 cover，check 竟然通过了"; exit 1; fi
           grep -q '\[C7\]' "$RUNNER_TEMP/negative8.log" || { echo "::error::失败信息里没有 [C7]"; exit 1; }
           echo "✓ 放宽只对「未声明 cover」生效；「声明了却缺文件」仍被 [C7] 拦住"
+
+  # Windows 是脚本的第一目标平台（SKILL.md 明说 Windows 优先），但此前 CI 只有 ubuntu——
+  # 路径分隔符、控制台编码、cmd/&&、Playwright 浏览器回退这些 Windows 专属问题从未进过 CI。
+  # 这条 job 用真流程（两轮 pipeline + check）在 windows-latest 上跑一遍，不做负向测试以控制时长。
+  fixture-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 装脚本依赖（含 Chromium）
+        working-directory: fanbook/skills/fanbook/scripts
+        run: |
+          npm ci
+          npx playwright install chromium
+      - name: 装字体子集工具
+        run: python -m pip install fonttools brotli
+      - name: 准备 fixture 项目根（含程序生成的测试字体）
+        run: |
+          $SKILL = Join-Path $PWD "fanbook/skills/fanbook"
+          $ROOT = Join-Path $env:RUNNER_TEMP "acb-eval-win"
+          if (Test-Path $ROOT) { Remove-Item $ROOT -Recurse -Force }
+          New-Item -ItemType Directory -Path $ROOT | Out-Null
+          Copy-Item -Path (Join-Path $SKILL "evals/fixture/*") -Destination $ROOT -Recurse -Force
+          python (Join-Path $SKILL "evals/make_smoke_font.py") (Join-Path $ROOT "fonts")
+          if ($LASTEXITCODE -ne 0) { throw "make_smoke_font 失败" }
+          Write-Host "fixture root: $ROOT"
+      - name: 两轮 pipeline + check（Windows 主目标平台）
+        working-directory: fanbook/skills/fanbook/scripts
+        env:
+          ANIME_BOOK_ROOT: ${{ runner.temp }}\acb-eval-win
+          ANIME_BOOK_FONT_REGULAR: ${{ runner.temp }}\acb-eval-win\fonts\Smoke-Regular.ttf
+          ANIME_BOOK_FONT_MEDIUM: ${{ runner.temp }}\acb-eval-win\fonts\Smoke-Medium.ttf
+          ANIME_BOOK_TITLE: 测试收藏册
+        run: |
+          node names_to_base.js
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          npm run pipeline
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          npm run check
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          npm run audit
+          Write-Host "✓ Windows fixture：两轮 pipeline 收敛、check 全绿（18 条）"

@@ -9,7 +9,7 @@
 
 ## 提 PR
 
-1. 改脚本后必须：`node --check <脚本>` 全过 + 在一个测试项目根跑通 `npm run pipeline && npm run check`（17 条断言全绿）
+1. 改脚本后必须：`node --check <脚本>` 全过 + 在一个测试项目根跑通 `npm run pipeline && npm run check`（18 条断言全绿）
 2. 涉及 UI 文案变动的：跑一遍 `npm run sheet`，联络表目检无方块字/溢出（字体子集会自动并入 build 脚本文案，但请确认）
 3. 版本号只有一个权威源：`SKILL.md` frontmatter 的 `metadata.version`。改它之后跑
    `node scripts/sync_version.js --fix` 同步其余清单，并用 `node scripts/sync_version.js --check` 复核

@@ -7,7 +7,7 @@
     {
       "name": "fanbook",
       "source": "./fanbook",
-      "version": "1.9.0",
+      "version": "1.10.0",
       "description": "Turn a list of anime names (or a local video library) into a magazine-style PDF collection book: official covers, synopses, staff & cast, watch order, per-season spoiler guides, bookmarks and page footers. Also ships a novel domain pack: turn story notes into a character codex with a foreshadowing tracker — fully offline",
       "displayName": "Fanbook",
       "displayName_i18n": {

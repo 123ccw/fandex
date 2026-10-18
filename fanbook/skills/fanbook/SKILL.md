@@ -4,8 +4,8 @@ license: MIT
 compatibility: Requires Node.js >=20 with npm, Python 3 + fonttools/brotli (font subsetting), Playwright Chromium (or system Edge), curl and the Tavily CLI (tvly; Windows needs PYTHONIOENCODING=utf-8 for --json), and internet access for anime research (novel mode is offline).
 metadata:
   author: 123ccw
-  version: "1.9.0"
-description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册/简介 PDF"——可只给片名清单（清单也可来自对话上文或文件，无需本地视频文件），也可基于本机视频收藏库；TV/剧场版/OVA 及 Galgame 视觉小说的同类整理均适用。也用于把网文/小说的设定资料整理成"设定集/角色档案册/伏笔追踪手册/读者向无剧透图鉴 PDF"（数据来自用户本地稿件或笔记，离线完成）。产出杂志风 PDF：海报墙封面封底、无剧透简介（剧透独立成表）、结构化要点表、每部主题色章节、数说统计页、可点击目录与书签页脚，另可导出竖版分享卡 PNG。不用于：追番进度管理（这不是 tracker）、视频文件整理/重命名/媒体库刮削（Jellyfin/Emby/Plex 场景）、对已有 PDF 的格式转换、小说正文本身的写作或排版。
+  version: "1.10.0"
+description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册/简介 PDF"——可只给片名清单（清单也可来自对话上文或文件，无需本地视频文件），也可基于本机视频收藏库；TV/剧场版/OVA 及 Galgame 视觉小说的同类整理均适用。也用于把网文/小说的设定资料整理成"设定集/角色档案册/伏笔追踪手册/读者向无剧透图鉴 PDF"（数据来自用户本地稿件或笔记，离线完成）。产出杂志风 PDF：海报墙封面封底、无剧透简介（剧透独立成表）、结构化要点表、每部主题色章节、数说统计页（类型 TOP3 / 单元构成 / 平均评分 / 时长估算）、可点击目录与书签页脚，另可导出竖版分享卡 PNG。不用于：追番进度管理（这不是 tracker）、视频文件整理/重命名/媒体库刮削（Jellyfin/Emby/Plex 场景）、对已有 PDF 的格式转换、小说正文本身的写作或排版。
 ---
 
 # 番剧收藏册 PDF
@@ -35,7 +35,7 @@ description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册
 - [ ] ③ 构建：`npm run pipeline`（字体子集 + 两轮「构建→渲染→页码反查」）
 - [ ] 🔴 CHECKPOINT：两轮 `_pagemap.json` 一致、无 ⚠ 未命中 → 通过才进 ④；未命中先回查 `units[].name` 是否逐字一致
       ↳ 未收敛 → 再跑一轮 `npm run pipeline`；仍不一致 → 查该部标题长度是否变化导致分页漂移（[C12]）；若某部页码一直留「·」→ 到 ④ 看 `[C10]`（书签未命中该部）
-- [ ] ④ 验收：`npm run check`（**产物断言 17 条** [C1]-[C17]；会自动先跑 `pdfprobe` 做 PDF 层深检）→ `npm run audit`（数据完备度 [A1]-[A10]）→ **全页目检** → 封面逐张目视核对
+- [ ] ④ 验收：`npm run check`（**产物断言 18 条** [C1]-[C18]；会自动先跑 `pdfprobe` 做 PDF 层深检）→ `npm run audit`（数据完备度 [A1]-[A10]）→ **全页目检** → 封面逐张目视核对
       ↳ `check` 报错 → 按 `[C#]/[A#]/[P#]` 码查 `evals/README.md` 的错误码表（每码带修法）；`[V1]/[V2]` 只提醒不阻断
       ↳ `[C15]` 报缺字 → 文案改过没重跑子集，回 ③ 重跑 `npm run pipeline`；`[C16]` 报书签缺 → 渲染丢了 `outline`（或成品被合并过），别在渲染后做页级合并
 - [ ] 🛑 STOP：全页目检与封面逐张核对未完成（或未如实记录）**禁止**进入 ⑤

@@ -32,6 +32,15 @@ function readVersion(file) {
   } catch (e) { return null; }
 }
 
+// npm 的 package-lock.json 有两处版本：顶层 version 与 packages[""].version。
+// 只改顶层会留下"npm install 时又被 lock 里的旧版本带跑"的漂移，这里一并管。
+function nestedVersion(file) {
+  try {
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return j.packages && j.packages[''] && j.packages[''].version ? j.packages[''].version : null;
+  } catch (e) { return null; }
+}
+
 function writeVersion(file, version) {
   const txt = fs.readFileSync(file, 'utf8');
   let out;
@@ -42,6 +51,7 @@ function writeVersion(file, version) {
     if (j.version) j.version = version;
     else if (j.metadata && j.metadata.version) j.metadata.version = version;
     else if (Array.isArray(j.plugins) && j.plugins[0]) j.plugins[0].version = version;
+    if (j.packages && j.packages[''] && j.packages[''].version) j.packages[''].version = version;
     out = JSON.stringify(j, null, 2) + '\n';
   }
   if (out !== txt) { fs.writeFileSync(file, out, 'utf8'); return true; }
@@ -76,9 +86,12 @@ const skipped = [];
 for (const t of TARGETS) {
   const v = readVersion(t.file);
   if (v == null) { skipped.push(t); continue; }   // 清单不在这个信封里（如单独安装的 skill 副本）
-  const ok = v === want;
+  const nested = nestedVersion(t.file);           // package-lock 的 packages[""].version（其它清单为 null）
+  const ok = v === want && (nested == null || nested === want);
   if (!ok) drift.push(t);
-  console.log((ok ? '  OK   ' : '  BAD  ') + path.relative(REPO, t.file) + ' = ' + v + '   # ' + t.note);
+  console.log((ok ? '  OK   ' : '  BAD  ') + path.relative(REPO, t.file) + ' = ' + v
+    + (nested != null && nested !== v ? '（内部 packages[""] = ' + nested + '）' : '')
+    + '   # ' + t.note);
 }
 const checked = TARGETS.length - skipped.length;
 if (skipped.length) {

@@ -4,9 +4,9 @@
 
 把一份**番剧名字清单**（或本机视频收藏库）做成一本"杂志风"PDF 收藏册：
 
-总览统计卡 → 可点击目录（带页码）→ 数说收藏页（大数字统计）→ 每部作品一个主题色章节（**主题色自动取自该部封面**）：
+总览统计卡 → 可点击目录（带页码）→ 数说收藏页（大数字统计 · 类型 TOP3 · 单元构成 · 平均评分 · 时长估算）→ 每部作品一个主题色章节（**主题色自动取自该部封面**）：
 官方海报 · 台词卡 · 无剧透简介 · 制作与声优 · 原作情报 · 补番顺序 · 逐季剧透详情表 · 更新动态。
-**海报墙封面 + 「完」字封底**（书名可配），全书中文字体内嵌（霞鹜文楷子集），PDF 带可折叠书签与页脚页码。
+**海报墙封面（最多 15 张，5 列自适应）+ 「完」字封底**（书名可配），全书中文字体内嵌（霞鹜文楷子集），PDF 带可折叠书签与页脚页码。
 **系列完整度审计**（每部「收录 M/N 条」+ 待补清单）· `npm run cards` 一键导出**竖版收藏卡 PNG** 与高清整页图（社交发图）。
 **同一份数据还能导出 EPUB 3**（可重排、无固定页码，手机/电子书阅读器用）：`npm run epub`。
 
@@ -34,7 +34,7 @@
 <table>
   <tr>
     <td width="50%" align="center"><b>总览页</b><br>统计卡 · 年份时间轴 · 带页码目录<br><br><img src="docs/preview-1-overview.png" alt="总览页"></td>
-    <td width="50%" align="center"><b>数说收藏页</b><br>大数字统计 · 年代分布<br><br><img src="docs/preview-2-datanotes.png" alt="数说收藏页"></td>
+    <td width="50%" align="center"><b>数说收藏页</b><br>大数字统计 · 年代分布 · 类型排行 · 评分 · 时长<br><br><img src="docs/preview-2-datanotes.png" alt="数说收藏页"></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><b>章节首页</b>——海报 · 台词卡 · 结构化制作表 · 状态徽章<br><br><img src="docs/preview-3-show.png" alt="章节首页" width="70%"></td>
@@ -102,7 +102,7 @@
    # 把 config.json 的 root 改成你的项目根，然后：
    npm run doctor                           # 环境自检（node/python/字体/浏览器/curl/tvly/重复安装）
    npm run pipeline                         # 一键：字体子集 → 两轮构建渲染 → 页码核对
-   npm run check                            # 产物断言（17 条：完整性 / 页码 / 两轮收敛 / PDF 层）→ 写 _check.json
+   npm run check                            # 产物断言（18 条：完整性 / 页码 / 两轮收敛 / PDF 层 / 数说页统计）→ 写 _check.json
    npm run probe                            # 只跑 PDF 层深检（正文缺字 + 书签）→ 写 _pdfprobe.json
    npm run audit                            # 数据完备度 → 写 _audit.json 与 receipts/<作品名>.json
    npm run sheet                            # 生成全页联络表（目检用）
@@ -121,7 +121,7 @@
 
 | 环节 | 凭据 |
 | --- | --- |
-| 产物断言 `[C1]-[C17]` | `anime_build/_check.json`（脚本产出，可复现） |
+| 产物断言 `[C1]-[C18]` | `anime_build/_check.json`（脚本产出，可复现） |
 | 数据完备度 `[A1]-[A10]` | `anime_build/_audit.json`（脚本产出，可复现） |
 | **全页目检** | `pack --pages-reviewed` 的**声明**（`npm run sheet` 的 PNG 是材料，不是证据） |
 | **封面逐张目检** | `pack --covers-reviewed` 的**声明** |
@@ -150,7 +150,7 @@
 | `export_epub.py` | EPUB 3 渲染（封面页 / 书名总览 / 每部一章 / 版权页 + nav 目录；字体子集化后内嵌，`--no-font` 可关） |
 | `sync_version.js` | 版本号校验/同步（`npm run version:check` / `version:fix`；按 glob 发现清单，不写死路径） |
 
-**验收脚本**（`evals/`）：`check.js`（产物断言 `[C1]-[C17]`，纯 fs 零依赖）、`pdfprobe.js`（PDF 层深检：正文缺字 / 书签丢失 / 书签重名）、`audit.js`（数据完备度）、`lint_skill.js`（skill 信封与文档数字一致性）。
+**验收脚本**（`evals/`）：`check.js`（产物断言 `[C1]-[C18]`，纯 fs 零依赖）、`pdfprobe.js`（PDF 层深检：正文缺字 / 书签丢失 / 书签重名）、`audit.js`（数据完备度）、`lint_skill.js`（skill 信封与文档数字一致性）。
 
 **配置**：所有脚本统一读 `scripts/_config.js`（`root` = 项目根，`vroot` = 模式 B 视频库根，`fonts` = 自测用字体）；日常一条 `npm run pipeline` 跑完。
 
