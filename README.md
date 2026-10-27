@@ -1,20 +1,22 @@
-# fanbook
+# FanDex · 番剧档案生成
 
-> 原名 `anime-collection-book`，2026-10 更名为 **fanbook** —— 同一套引擎已同时覆盖「番剧收藏册」与「小说设定集」两个领域包，旧名以偏概全。旧仓库链接由 GitHub 自动重定向。
+> 原名 `anime-collection-book` → `fanbook`（1.7.0）→ **`fandex`（1.11.0）**，中文名 **「番剧档案生成」**。fan + index／dex：无论番剧收藏册还是小说设定集，本质都是把喜欢的东西编成一本可检索、可收藏的册子。旧仓库链接由 GitHub 自动重定向。
 
 把一份**番剧名字清单**（或本机视频收藏库）做成一本"杂志风"PDF 收藏册：
 
-总览统计卡 → 可点击目录（带页码）→ 数说收藏页（大数字统计）→ 每部作品一个主题色章节（**主题色自动取自该部封面**）：
+总览统计卡 → 可点击目录（带页码）→ 数说收藏页（大数字统计 · 类型 TOP3 · 单元构成 · 平均评分 · 时长估算）→ 每部作品一个主题色章节（**主题色自动取自该部封面**）：
 官方海报 · 台词卡 · 无剧透简介 · 制作与声优 · 原作情报 · 补番顺序 · 逐季剧透详情表 · 更新动态。
-**海报墙封面 + 「完」字封底**（书名可配），全书中文字体内嵌（霞鹜文楷子集），PDF 带可折叠书签与页脚页码。
+**海报墙封面（最多 15 张，5 列自适应）+ 「完」字封底**（书名可配），全书中文字体内嵌（霞鹜文楷子集），PDF 带可折叠书签与页脚页码。
 **系列完整度审计**（每部「收录 M/N 条」+ 待补清单）· `npm run cards` 一键导出**竖版收藏卡 PNG** 与高清整页图（社交发图）。
 **同一份数据还能导出 EPUB 3**（可重排、无固定页码，手机/电子书阅读器用）：`npm run epub`。
 
-> **内置两个领域包**：`config.json` 的 `"domain"` 切换 —— `anime`（默认，本仓库主示例）／`novel`：把同一引擎用于**小说设定集**——每个角色一章、伏笔追踪表（franchise 字段承载）、数说设定页、读者向脱敏版，全程离线。字段映射见 [domain-novel.md](fanbook/skills/fanbook/references/domain-novel.md)。
+> **内置两个领域包**：`config.json` 的 `"domain"` 切换 —— `anime`（默认，本仓库主示例）／`novel`：把同一引擎用于**小说设定集**——每个角色一章、伏笔追踪表（franchise 字段承载）、数说设定页、读者向脱敏版，全程离线。字段映射见 [domain-novel.md](fandex/skills/fandex/references/domain-novel.md)。
 
 这是一个给 **AI agent**（Claude Code / ZCode / Cursor 等，需具备文件读写 + Shell + 联网 + 读图能力）使用的 skill，符合 [Agent Skills 开放格式](https://code.claude.com/docs/en/skills)（SKILL.md + 附属脚本），同时按 Claude Code **插件市场**规范打包。
 
 > 以下效果图为 **虚构演示作品**（`evals/fixture/`，含程序生成的示例封面）——真实书本使用官方海报时请遵守下方「关于素材版权」。
+>
+> **公开发布 = 必须自行取得授权**：本工具是 MIT，但它产出的册子里装的是别人的作品（海报 / 立绘 / 文字），那部分权利**不随工具许可授予你**。个人自用通常没问题；发群、上传平台、印制售卖前请自行确认授权。完整立场见 [DISCLAIMER.md](DISCLAIMER.md) 与 [`references/compliance.md`](fandex/skills/fandex/references/compliance.md)。
 
 ## 为什么做它（四个踩过的坑）
 
@@ -32,7 +34,7 @@
 <table>
   <tr>
     <td width="50%" align="center"><b>总览页</b><br>统计卡 · 年份时间轴 · 带页码目录<br><br><img src="docs/preview-1-overview.png" alt="总览页"></td>
-    <td width="50%" align="center"><b>数说收藏页</b><br>大数字统计 · 年代分布<br><br><img src="docs/preview-2-datanotes.png" alt="数说收藏页"></td>
+    <td width="50%" align="center"><b>数说收藏页</b><br>大数字统计 · 年代分布 · 类型排行 · 评分 · 时长<br><br><img src="docs/preview-2-datanotes.png" alt="数说收藏页"></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><b>章节首页</b>——海报 · 台词卡 · 结构化制作表 · 状态徽章<br><br><img src="docs/preview-3-show.png" alt="章节首页" width="70%"></td>
@@ -44,15 +46,15 @@
 **Claude Code（推荐，一条命令）：**
 
 ```
-/plugin marketplace add 123ccw/fanbook
-/plugin install fanbook@fanbook
+/plugin marketplace add 123ccw/fandex
+/plugin install fandex@fandex
 ```
 
 装好后说"我想给这几部番做个收藏册：…"即可触发。
 
 **其他 agent（手动）：**
 
-把 `fanbook/skills/fanbook/` 整个文件夹拷进对应工具的技能目录，让 agent 读其中的 `SKILL.md` 照做：
+把 `fandex/skills/fandex/` 整个文件夹拷进对应工具的技能目录，让 agent 读其中的 `SKILL.md` 照做：
 
 | 工具 | 技能目录 |
 |---|---|
@@ -100,7 +102,7 @@
    # 把 config.json 的 root 改成你的项目根，然后：
    npm run doctor                           # 环境自检（node/python/字体/浏览器/curl/tvly/重复安装）
    npm run pipeline                         # 一键：字体子集 → 两轮构建渲染 → 页码核对
-   npm run check                            # 产物断言（17 条：完整性 / 页码 / 两轮收敛 / PDF 层）→ 写 _check.json
+   npm run check                            # 产物断言（18 条：完整性 / 页码 / 两轮收敛 / PDF 层 / 数说页统计）→ 写 _check.json
    npm run probe                            # 只跑 PDF 层深检（正文缺字 + 书签）→ 写 _pdfprobe.json
    npm run audit                            # 数据完备度 → 写 _audit.json 与 receipts/<作品名>.json
    npm run sheet                            # 生成全页联络表（目检用）
@@ -119,14 +121,14 @@
 
 | 环节 | 凭据 |
 | --- | --- |
-| 产物断言 `[C1]-[C17]` | `anime_build/_check.json`（脚本产出，可复现） |
+| 产物断言 `[C1]-[C18]` | `anime_build/_check.json`（脚本产出，可复现） |
 | 数据完备度 `[A1]-[A10]` | `anime_build/_audit.json`（脚本产出，可复现） |
 | **全页目检** | `pack --pages-reviewed` 的**声明**（`npm run sheet` 的 PNG 是材料，不是证据） |
 | **封面逐张目检** | `pack --covers-reviewed` 的**声明** |
 
 没签就写「未声明」，收据比成品旧就标「⚠ 过期」。**机器验不了的事不假装验过**——想让它变绿只有一条路：真的去做。
 
-## 脚本（skills/fanbook/scripts/）
+## 脚本（skills/fandex/scripts/）
 
 | 文件 | 作用 |
 |---|---|
@@ -148,7 +150,7 @@
 | `export_epub.py` | EPUB 3 渲染（封面页 / 书名总览 / 每部一章 / 版权页 + nav 目录；字体子集化后内嵌，`--no-font` 可关） |
 | `sync_version.js` | 版本号校验/同步（`npm run version:check` / `version:fix`；按 glob 发现清单，不写死路径） |
 
-**验收脚本**（`evals/`）：`check.js`（产物断言 `[C1]-[C17]`，纯 fs 零依赖）、`pdfprobe.js`（PDF 层深检：正文缺字 / 书签丢失 / 书签重名）、`audit.js`（数据完备度）、`lint_skill.js`（skill 信封与文档数字一致性）。
+**验收脚本**（`evals/`）：`check.js`（产物断言 `[C1]-[C18]`，纯 fs 零依赖）、`pdfprobe.js`（PDF 层深检：正文缺字 / 书签丢失 / 书签重名）、`audit.js`（数据完备度）、`lint_skill.js`（skill 信封与文档数字一致性）。
 
 **配置**：所有脚本统一读 `scripts/_config.js`（`root` = 项目根，`vroot` = 模式 B 视频库根，`fonts` = 自测用字体）；日常一条 `npm run pipeline` 跑完。
 
@@ -170,7 +172,7 @@
 ## 质检铁律
 
 封面必须让 agent 亲眼看（防张冠李戴）；每个字段要么带来源、要么写「未核实」；发布前全页目检。
-完整踩坑清单（14 条）与数据源用法见 [`references/pipeline.md`](fanbook/skills/fanbook/references/pipeline.md)。
+完整踩坑清单（14 条）与数据源用法见 [`references/pipeline.md`](fandex/skills/fandex/references/pipeline.md)。
 
 ## 关于素材版权
 
@@ -191,7 +193,7 @@
 
 | 删什么 | 为什么 |
 | --- | --- |
-| `fanbook/skills/fanbook/scripts/config.json` | 含你的**本机绝对路径**（用户名） |
+| `fandex/skills/fandex/scripts/config.json` | 含你的**本机绝对路径**（用户名） |
 | `names.txt` | 你的片单 ＝ 观看偏好 |
 | `anime_research/` | 调研稿与从网上抓下来的图片 |
 

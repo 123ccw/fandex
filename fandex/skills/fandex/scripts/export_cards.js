@@ -71,6 +71,15 @@ let cleanupBrowser = null;   // 异常路径也要收起浏览器，不依赖进
     process.exitCode = 1;
   }
 
+  // 合规护栏：这些卡片与整页图天生是「发图用」的，而它们嵌的是作品海报/立绘（第三方素材）。
+  // 之前这里是静默的——导出成功就完事，没人提醒「公开发布前要确认授权」。
+  if (process.exitCode !== 1) {
+    console.warn('');
+    console.warn('  ⚠ 合规提醒：_cards/ 与 _gallery/ 内嵌作品海报/立绘（第三方素材）');
+    console.warn('    仅供个人收藏。公开发布（发群 / 上传平台 / 印制售卖）前须自行确认授权——注明来源不等于获得授权。');
+    console.warn('    详见 references/compliance.md（官网 / 发行方 / 原作出版社 优先，台账 npm run sources）');
+  }
+
   await browser.close();
 })().catch(async e => {
   if (cleanupBrowser) await cleanupBrowser.close().catch(() => {});

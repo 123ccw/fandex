@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SKILL_DIR = path.resolve(__dirname, '..');            // <skill>/scripts/.. = <skill>
-const REPO = path.resolve(SKILL_DIR, '..', '..', '..');     // <repo>/fanbook/skills/<skill> → <repo>
+const REPO = path.resolve(SKILL_DIR, '..', '..', '..');     // <repo>/fandex/skills/<skill> → <repo>
 const CHECK = process.argv.includes('--check');
 const FIX = process.argv.includes('--fix');
 
@@ -32,6 +32,15 @@ function readVersion(file) {
   } catch (e) { return null; }
 }
 
+// npm 的 package-lock.json 有两处版本：顶层 version 与 packages[""].version。
+// 只改顶层会留下"npm install 时又被 lock 里的旧版本带跑"的漂移，这里一并管。
+function nestedVersion(file) {
+  try {
+    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return j.packages && j.packages[''] && j.packages[''].version ? j.packages[''].version : null;
+  } catch (e) { return null; }
+}
+
 function writeVersion(file, version) {
   const txt = fs.readFileSync(file, 'utf8');
   let out;
@@ -42,6 +51,7 @@ function writeVersion(file, version) {
     if (j.version) j.version = version;
     else if (j.metadata && j.metadata.version) j.metadata.version = version;
     else if (Array.isArray(j.plugins) && j.plugins[0]) j.plugins[0].version = version;
+    if (j.packages && j.packages[''] && j.packages[''].version) j.packages[''].version = version;
     out = JSON.stringify(j, null, 2) + '\n';
   }
   if (out !== txt) { fs.writeFileSync(file, out, 'utf8'); return true; }
@@ -57,7 +67,7 @@ add(path.join(SKILL_DIR, 'scripts', 'package.json'), 'scripts 包');
 add(path.join(SKILL_DIR, 'scripts', 'package-lock.json'), 'lock（npm 自动维护，建议随之更新）');
 add(path.join(REPO, '.claude-plugin', 'marketplace.json'), '插件市场');
 // 插件清单：<repo>/**/.claude-plugin/plugin.json 与 .zcode-plugin/plugin.json
-for (const dir of ['fanbook', '']) {
+for (const dir of ['fandex', '']) {
   for (const p of ['.claude-plugin', '.zcode-plugin']) {
     add(path.join(REPO, dir, p, 'plugin.json'), '插件清单 ' + path.join(dir, p));
   }
@@ -76,9 +86,12 @@ const skipped = [];
 for (const t of TARGETS) {
   const v = readVersion(t.file);
   if (v == null) { skipped.push(t); continue; }   // 清单不在这个信封里（如单独安装的 skill 副本）
-  const ok = v === want;
+  const nested = nestedVersion(t.file);           // package-lock 的 packages[""].version（其它清单为 null）
+  const ok = v === want && (nested == null || nested === want);
   if (!ok) drift.push(t);
-  console.log((ok ? '  OK   ' : '  BAD  ') + path.relative(REPO, t.file) + ' = ' + v + '   # ' + t.note);
+  console.log((ok ? '  OK   ' : '  BAD  ') + path.relative(REPO, t.file) + ' = ' + v
+    + (nested != null && nested !== v ? '（内部 packages[""] = ' + nested + '）' : '')
+    + '   # ' + t.note);
 }
 const checked = TARGETS.length - skipped.length;
 if (skipped.length) {

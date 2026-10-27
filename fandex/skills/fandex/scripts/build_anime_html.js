@@ -181,9 +181,10 @@ function splitProduction(s) {
     return [seg.slice(0, i).trim(), v];
   });
   const cast = castPart.split(/[、,]/).map(x => x.trim()).filter(Boolean).map(x => {
-    let mm = x.match(/^(.+?)[·・](.+)$/);
+    // 先试「角色（CV）」形式：角色名本身常含中点（如 泽村·斯潘塞·英梨梨），先按中点拆会拆错
+    let mm = x.match(/^(.+?)[（(](.+?)[)）]$/);
     if (mm) return [mm[1].trim(), mm[2].trim()];
-    mm = x.match(/^(.+?)[（(](.+?)[)）]$/);
+    mm = x.match(/^(.+?)[·・](.+)$/);
     if (mm) return [mm[1].trim(), mm[2].trim()];
     return ['', x];
   });
@@ -287,11 +288,11 @@ const CSS = `
   th { background: var(--ac-dark); color: #fff; padding: 1.8mm 2.4mm; text-align: left; font-weight: 500;
        border: none; letter-spacing: .04em; }
   th + th { border-left: 1px solid rgba(255,255,255,.22); }
-  td { border: none; border-bottom: 1px solid var(--ac-faint); padding: 1.5mm 2.4mm; vertical-align: top;
+  td { border: none; border-bottom: 1px solid var(--ac-faint); padding: 1.15mm 2.2mm; vertical-align: top;
        text-align: justify; line-break: strict; overflow-wrap: break-word; }
   td + td { border-left: 1px solid var(--ac-tint2); }
   tbody tr:nth-child(even) td { background: var(--ac-tint); }
-  td.sop { font-size: 8.8pt; line-height: 1.7; color: #3c3c46; text-align: justify; }
+  td.sop { font-size: 8.4pt; line-height: 1.58; color: #3c3c46; text-align: justify; }
   tr { break-inside: avoid; }
   .sp { font-size: 8pt; font-weight: 400; color: #b45309; background: rgba(180,83,9,.08);
         border: 1px solid rgba(180,83,9,.25); border-radius: 2.5mm; padding: .3mm 2.5mm;
@@ -345,17 +346,26 @@ const CSS = `
   .alm-grid .lb { font-size: 9pt; letter-spacing: .18em; color: #6b6b76; }
   .alm-grid .b { font-family: "LXGW WenKai"; font-weight: 700; font-size: 23pt; color: var(--bc, var(--ac-dark)); line-height: 1.3; margin-top: 1.5mm; }
   .alm-grid .sub { font-size: 8.5pt; color: #8b8b96; margin-top: 1mm; }
+  /* 数说页底部的一排紧凑小卡：单元构成 / 时长估算 / 平均评分 / 类型 TOP3
+     单独做「小字号 + 4 列」而不是塞进上面的 44% 大卡，避免把数说页撑到第二页 */
+  .alm-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 4.5mm 0 0; }
+  .alm-mini .mi { background: var(--ac-tint); border-radius: 2.5mm; padding: 3.2mm 4mm; break-inside: avoid; }
+  .alm-mini .mi .lb { font-size: 8pt; letter-spacing: .16em; color: #6b6b76; }
+  .alm-mini .mi b { display: block; font-family: "LXGW WenKai"; font-weight: 700; font-size: 12.5pt;
+                    color: var(--ac-dark); margin-top: 1.2mm; line-height: 1.35; }
+  .alm-mini .mi span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+                       font-size: 7.5pt; color: #8b8b96; margin-top: .8mm; line-height: 1.4; overflow: hidden; }
   .brow { display: flex; align-items: center; gap: 2.5mm; margin: 1.8mm 0; font-size: 8.5pt; color: #3c3c46; }
-  .brow span { flex: 0 0 15mm; font-variant-numeric: tabular-nums; }
+  .brow span { flex: 0 0 15mm; font-variant-numeric: tabular-nums; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .brow b { flex: 0 0 6mm; text-align: right; color: var(--ac-dark); font-variant-numeric: tabular-nums; }
   .bar { flex: 1; height: 2.6mm; background: rgba(0,0,0,.07); border-radius: 1.6mm; overflow: hidden; }
   .bar i { display: block; height: 100%; background: var(--ac); border-radius: 1.6mm; }
 
   /* ===== 封面 / 封底 ===== */
-  .cover-pg { break-before: page; display: flex; flex-direction: column; }
+  .cover-pg { break-before: page; display: flex; flex-direction: column; height: 266mm; }
   .ov-pg { break-before: page; }   /* 封面之后总览必须自己分页（break-before 对首个元素无效） */
   .cv-kick { font-size: 9pt; font-weight: 500; letter-spacing: .42em; color: var(--ac); margin-top: 4mm; }
-  .cv-grid { display: flex; flex-wrap: wrap; gap: 4mm; margin: 4mm 0 2mm; }
+  .cv-grid { display: flex; flex-wrap: wrap; gap: 4mm; margin: 4mm 0 2mm; flex: 1 1 auto; align-content: center; }
   .cv-tile { position: relative; aspect-ratio: 3 / 4.1; border-radius: 3mm; overflow: hidden;
              background: #f1f1f4; border-bottom: 2.2mm solid var(--tc, var(--ac)); }
   .cv-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -368,7 +378,8 @@ const CSS = `
   .cv-sub { font-size: 10.5pt; color: #6b6b76; margin-top: 2.5mm; letter-spacing: .06em; }
   .cv-foot { display: flex; justify-content: space-between; border-top: 1.6px solid var(--ac); margin-top: 4mm;
              padding-top: 3mm; font-size: 8.5pt; letter-spacing: .18em; color: #6b6b76; }
-  .back-pg { break-before: page; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .body-pg { padding-bottom: 0mm; }
+  .back-pg { break-before: page; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; padding-top: 96mm; }
   .bk-end { font-family: "LXGW WenKai"; font-weight: 700; font-size: 52pt; color: var(--ac); opacity: .16; line-height: 1; }
   .bk-title { font-family: "LXGW WenKai"; font-weight: 700; font-size: 15pt; color: #141419; margin-top: 10mm; }
   .bk-line { font-size: 9pt; color: #6b6b76; margin-top: 2mm; letter-spacing: .08em; }
@@ -553,7 +564,6 @@ const almHtml = (() => {
       genreCnt[g] = (genreCnt[g] || 0) + 1;
     }
   }
-  const topGenre = Object.entries(genreCnt).sort((a, b) => b[1] - a[1])[0];
   const longest = showMeta.slice().sort((a, b) => b.total - a.total)[0];
   const doneCnt = shows.filter(s => stClass((research[s.folder] || {}).status || '') === 'std-done').length;
   const airCnt = shows.filter(s => stClass((research[s.folder] || {}).status || '') === 'std-air').length;
@@ -564,6 +574,47 @@ const almHtml = (() => {
   const spanYears = years.length ? (years[years.length - 1] - years[0] + 1) + ' 年' : '—';
   const block = (lb, big, sub, bc) => `<div class="st2"${bc ? ` style="--bc:${bc}"` : ''}><div class="lb">${esc(lb)}</div><div class="b">${big}</div><div class="sub">${esc(sub)}</div></div>`;
   const bars = decKeys.map(k => `<div class="brow"><span>${k}s</span><div class="bar"><i style="width:${Math.round(decades[k] / decMax * 100)}%"></i></div><b>${decades[k]}</b></div>`).join('');
+  // ---- 补充统计：单元构成 / 时长估算 / 平均评分 / 类型 TOP3（只对 anime 领域；全为空时自动省略） ----
+  //  放在数说页底部的一排「小卡」里，而不是继续往 44% 大卡里塞——避免把数说页撑到第二页。
+  const topGenres = Object.entries(genreCnt).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5);
+  const ut = { tv: 0, movie: 0, ova: 0 };
+  for (const s of shows) for (const u of (s.units || [])) {
+    if (/剧场版|劇場版/.test(u.name)) ut.movie++;
+    else if (/OVA|特别篇|特別篇|SP|BONUS|完成篇|番外/i.test(u.name)) ut.ova++;
+    else ut.tv++;
+  }
+  const ratedList = shows.map(s => {
+    const r = (research[s.folder] || {}).rating;
+    if (!Array.isArray(r)) return null;
+    const bg = r.find(x => x && x.site === 'bangumi' && x.score > 0);
+    const tm = r.find(x => x && x.site === 'tmdb' && x.score > 0);
+    return (bg || tm) ? { title: s.title || s.folder, bg: bg ? bg.score : null, tm: tm ? tm.score : null } : null;
+  }).filter(Boolean);
+  const bgList = ratedList.filter(x => x.bg != null).sort((a, b) => b.bg - a.bg);
+  const tmList = ratedList.filter(x => x.tm != null);
+  const avg = xs => xs.length ? (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1) : null;
+  const bgAvg = avg(bgList.map(x => x.bg)), tmAvg = avg(tmList.map(x => x.tm));
+  // 时长估算：按单元类型加权（TV 24 / OVA・特别篇 30 / 剧场版 110 分钟）——比「总集数 × 24」更贴近实际
+  const estMinutes = shows.reduce((sum, s) => sum + (s.units || []).reduce((a, u) => {
+    const n = Number(u.eps) || 0;
+    if (/剧场版|劇場版/.test(u.name)) return a + (n ? n * 110 : 110);
+    if (/OVA|特别篇|特別篇|SP|BONUS|完成篇|番外/i.test(u.name)) return a + (n ? n * 30 : 30);
+    return a + (n ? n * 24 : 24 * 12);
+  }, 0), 0);
+  const estHours = estMinutes >= 60 ? (estMinutes / 60).toFixed(estMinutes % 60 ? 1 : 0) : String(estMinutes);
+  const estUnit = estMinutes >= 60 ? ' 小时' : ' 分钟';
+  const estNote = (ut.movie || ut.ova) ? '按 TV 24 / OVA 30 / 剧场版 110 分钟估算' : `${grand} 集 × 每集约 24 分钟`;
+  const ratingParts = [];
+  if (bgAvg) ratingParts.push(`Bangumi ${bgAvg}（${bgList.length} 部）`);
+  if (tmAvg) ratingParts.push(`TMDB ${tmAvg}（${tmList.length} 部）`);
+  const miniBlocks = DOMAIN === 'anime' ? [
+    `<div class="mi"><div class="lb">单元构成</div><b>${ut.tv + ut.movie + ut.ova} 个</b><span>TV ${ut.tv} · 剧场版 ${ut.movie} · OVA/特别篇 ${ut.ova}</span></div>`,
+    estMinutes ? `<div class="mi"><div class="lb">时长估算</div><b>${estHours}${estUnit}</b><span>${esc(estNote)}</span></div>` : '',
+    ratingParts.length ? `<div class="mi"><div class="lb">平均评分</div><b>${bgAvg ? 'Bangumi ' + bgAvg : 'TMDB ' + tmAvg}</b><span>${esc(ratingParts.join(' · ') + (bgList.length ? ` · 最高《${bgList[0].title}》${bgList[0].bg}` : ''))}</span></div>` : '',
+    topGenres.length > 1 ? `<div class="mi"><div class="lb">类型 TOP3</div><b>${esc(topGenres[0][0])} ${topGenres[0][1]}</b><span>${esc(topGenres.slice(1, 3).map(([g, n]) => `${g} ${n}`).join(' · ') || '—')}</span></div>` : '',
+  ].filter(Boolean) : [];
+  const miniStats = miniBlocks.length
+    ? `<div class="alm-mini" style="grid-template-columns:repeat(${miniBlocks.length},1fr)">${miniBlocks.join('')}</div>` : '';
   return `
   <div class="alm">
     <h2>${L.almTitle}<span class="sp">DATA NOTES</span></h2>
@@ -571,18 +622,18 @@ const almHtml = (() => {
       ${block(L.almTotal, `${grand} ${L.chapName}`, `${shows.length} ${L.person} · ${grandUnits} ${L.stUnit}`)}
       ${block(L.almSpan, spanYears, span)}
       ${longest && longest.total ? block(L.almLong, `${longest.total} ${L.chapName}`, longest.title, longest.ac) : ''}
-      ${topGenre ? block(L.almGenre, `「${topGenre[0]}」`, `在 ${topGenre[1]} ${L.person}作品中出现`) : ''}
       ${decKeys.length ? `<div class="st2"><div class="lb">${L.almDecade}</div><div style="margin-top:2mm">${bars}</div></div>` : ''}
       ${block(L.almDone, `${doneCnt} / ${airCnt}`, airCnt ? `${airCnt} ${L.airUnit}` : (doneCnt === shows.length ? L.almAllDone : '以各章状态徽章为准'))}
       ${frShows.length ? block(L.almFr, missTotal ? `${missTotal} 条` : L.frDoneShort, missTotal ? L.almFrSubN : L.almFrSub0) : ''}
     </div>
+    ${miniStats}
   </div>`;
 })();
 const almPage = almHtml ? `<div class="page alm-pg" style="${varsFor(DEFAULT_ACCENT)}">${almHtml}</div>` : '';
 // ---- 封面 / 封底 ----
-const coverList = showMeta.filter(m => m.cover).slice(0, 9);
+const coverList = showMeta.filter(m => m.cover).slice(0, 15);
 // 网格列数按封面数量自适应：1 张居中放大、2/4 张双列（4 张正好 2×2，避免 3 列留空位）、其余 3 列
-const cvCols = coverList.length === 1 ? 1 : (coverList.length === 2 || coverList.length === 4) ? 2 : 3;
+const cvCols = coverList.length === 1 ? 1 : (coverList.length === 2 || coverList.length === 4) ? 2 : (coverList.length <= 9 ? 3 : 5);
 const cvW = coverList.length ? `calc((100% - ${(cvCols - 1) * 4}mm) / ${cvCols})` : '';
 const tiles = coverList
   .map(m => `<div class="cv-tile" style="--tc:${m.ac}; width:${cvW}${coverList.length === 1 ? '; max-width:88mm; margin:0 auto' : ''}"><img src="${m.cover}" alt=""></div>`).join('');
@@ -602,7 +653,7 @@ const backPage = `<div class="page back-pg" style="${varsFor(DEFAULT_ACCENT)}">
   <div class="bk-end">完</div>
   <div class="bk-title">${esc(BOOK_TITLE)}</div>
   <div class="bk-line">${yearSpan || NOW} · ${shows.length} ${L.person} · ${grand} ${L.chapName}</div>
-  <div class="bk-cred">${L.m2} · ${NOW} · Generated with fanbook</div>
+  <div class="bk-cred">${L.m2} · ${NOW} · Generated with fandex</div>
   <div class="bk-src">${esc(CFG.credits || DEFAULT_CREDITS)}</div>
   <div class="bk-notice">${esc(NOTICE)}</div>
   <div class="bk-font">本册中文字体：霞鹜文楷 LXGW WenKai（SIL OFL 1.1）｜© LXGW｜© The Klee Project Authors（基于 FONTWORKS「Klee One」衍生）</div>
@@ -649,7 +700,7 @@ const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
   </div>
 </div>
 ${almPage}
-<div class="page">
+<div class="page body-pg">
 ${chapters.join('\n')}
 </div>
 ${backPage}

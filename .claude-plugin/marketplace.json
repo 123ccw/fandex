@@ -1,17 +1,17 @@
 {
-  "name": "fanbook",
+  "name": "fandex",
   "owner": {
     "name": "123ccw"
   },
   "plugins": [
     {
-      "name": "fanbook",
-      "source": "./fanbook",
-      "version": "1.9.0",
+      "name": "fandex",
+      "source": "./fandex",
+      "version": "1.11.1",
       "description": "Turn a list of anime names (or a local video library) into a magazine-style PDF collection book: official covers, synopses, staff & cast, watch order, per-season spoiler guides, bookmarks and page footers. Also ships a novel domain pack: turn story notes into a character codex with a foreshadowing tracker — fully offline",
-      "displayName": "Fanbook",
+      "displayName": "FanDex",
       "displayName_i18n": {
-        "zh-CN": "番剧收藏册 / 设定集"
+        "zh-CN": "番剧档案生成"
       },
       "description_i18n": {
         "zh-CN": "把番剧清单（或本机视频收藏）做成杂志风 PDF 收藏册：官方海报/简介/制作声优/补番顺序/逐季剧透，带书签页脚；内置 novel 领域包——把小说设定资料离线做成角色档案册与伏笔追踪手册"

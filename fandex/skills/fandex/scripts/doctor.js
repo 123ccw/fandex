@@ -6,6 +6,7 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
+const { findPython, missingMessage } = require('./_python');
 
 const NET = process.argv.includes('--net');
 let bad = 0, warn = 0;
@@ -28,12 +29,17 @@ const CFG = cfgmod.CFG;
 const CONFIG_FILE = cfgmod.configPath;
 head('配置');
 if (cfgmod.configError) {
-  no('读不到 ' + CONFIG_FILE + '（' + (cfgmod.configError.code || cfgmod.configError.message) + '）',
-    '复制 config.example.json 为 config.json，并把 root 改成你的项目根');
+  // CI / 自测用 ANIME_BOOK_ROOT 覆盖时，缺 config.json 是正常状态，不该算阻塞
+  if (process.env.ANIME_BOOK_ROOT) {
+    ok('没有 config.json，但已用环境变量 ANIME_BOOK_ROOT 覆盖 root（CI / 自测模式）');
+  } else {
+    no('读不到 ' + CONFIG_FILE + '（' + (cfgmod.configError.code || cfgmod.configError.message) + '）',
+      '复制 config.example.json 为 config.json，并把 root 改成你的项目根');
+  }
 } else {
   ok('config.json 可解析');
 }
-if (process.env.ANIME_BOOK_ROOT) ok('已用环境变量 ANIME_BOOK_ROOT 覆盖 root（CI / 自测模式）');
+if (!cfgmod.configError && process.env.ANIME_BOOK_ROOT) ok('已用环境变量 ANIME_BOOK_ROOT 覆盖 root（CI / 自测模式）');
 const ROOT = CFG.root || '';
 if (!ROOT) {
   no('config.json 里没有 root', '填上项目根目录的绝对路径');
@@ -142,11 +148,13 @@ head('字体（霞鹜文楷，自行下载后放进 <项目根>/fonts/）');
 if (ROOT && fs.existsSync(ROOT)) {
   const custom = CFG.fonts;
   if (custom && (custom.regular || custom.medium)) {
-    // CI / 自测：用 config.json 的 fonts 指向测试字体，不要求霞鹜文楷
+    // CI / 自测：用 config.json 或 ANIME_BOOK_FONT_* 指向测试字体，不要求霞鹜文楷
+    const viaEnv = !!(process.env.ANIME_BOOK_FONT_REGULAR || process.env.ANIME_BOOK_FONT_MEDIUM);
     const cp = [custom.regular, custom.medium].filter(Boolean);
     const gone = cp.filter((f) => !fs.existsSync(f));
-    if (!gone.length) meh('使用 config.json 的 fonts 覆盖（' + cp.length + ' 个自备字体）—— 仅用于 CI / 自测，成品请用霞鹜文楷或其它可商用中文字体');
-    else no('config.json 的 fonts 指向的文件不存在：' + gone.join('、'), '删掉 fonts 字段回到霞鹜文楷，或修正路径');
+    const src = viaEnv ? 'ANIME_BOOK_FONT_* 环境变量' : 'config.json 的 fonts';
+    if (!gone.length) meh('使用 ' + src + ' 覆盖（' + cp.length + ' 个自备字体）—— 仅用于 CI / 自测，成品请用霞鹜文楷或其它可商用中文字体');
+    else no(src + ' 指向的文件不存在：' + gone.join('、'), '去掉覆盖回到霞鹜文楷，或修正路径');
   } else {
     const need = ['LXGWWenKai-Regular.ttf', 'LXGWWenKai-Medium.ttf'];
     const miss = need.filter((f) => !fs.existsSync(path.join(ROOT, 'fonts', f)));
@@ -160,16 +168,14 @@ if (ROOT && fs.existsSync(ROOT)) {
 
 // ---- Python（字体子集）----
 head('Python（字体子集用）');
-let PY = '';
-for (const cmd of ['python3', 'python']) {
-  // 注意：要让它打印点什么——import 成功时 stdout 是空的，空串会被判成失败
-  if (run(cmd, ['-c', 'import fontTools, brotli; print("ok")'])) { PY = cmd; break; }
-}
-if (PY) ok('找到 ' + PY + '，且 fontTools + brotli 可用');
-else {
+// 与 collect_fonts / epub 共用 _python.js 的探测顺序（ANIME_BOOK_PYTHON > PYTHON > .venv > 常见目录 > PATH）
+const py = findPython({ requireFontTools: true, projectRoot: ROOT });
+if (py) {
+  ok('找到 ' + (py.display || py.cmd) + '（' + py.version + '，fontTools + brotli 可用' + (py.source !== 'PATH' ? '；来自 ' + py.source : '') + '）');
+} else {
   const anyPy = run('python', ['--version']) || run('python3', ['--version']);
   if (anyPy) no('有 Python（' + anyPy + '）但缺 fontTools/brotli', 'pip install fonttools brotli');
-  else no('没找到 Python', '装 Python 3 后执行 pip install fonttools brotli');
+  else no('没找到 Python', missingMessage(true).split('\n').slice(1).join('\n      '));
 }
 
 // ---- 浏览器（渲染 PDF）----

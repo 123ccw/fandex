@@ -51,7 +51,7 @@ metadata:
 ---
 
 <!--
-写 skill 的四条经验（来自本仓库 fanbook 与高星 skill 的对照）：
+写 skill 的四条经验（来自本仓库 fandex 与高星 skill 的对照）：
 
 1. **入口 ≤ 10 KB**：SKILL.md 只放「执行流程 + 质检铁律 + 最硬的坑位 + 路由表 + 环境依赖」，
    细节全部下沉到 references/，让 agent 按需读。20 KB 的入口意味着每次触发都要全量吃进上下文。

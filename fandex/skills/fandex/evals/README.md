@@ -8,7 +8,7 @@
 npm run check
 ```
 
-断言产物完整性：base 可解析、每部有调研稿、HTML/PDF 已生成、**无乱码方块字**、封面逐部真实落盘、页码映射全命中、**目录页码与最终书签一致**、**两轮页码一致（已收敛）**；PDF 层另有体积上限、**正文含每部作品名**（防字体子集吞字）、**书签含每部作品名**（页码反查的输入源）、**书签标题无重复**（重名会让页码反查取错页）。任何一条失败都会给出排查方向。
+断言产物完整性：base 可解析、每部有调研稿、HTML/PDF 已生成、**无乱码方块字**、封面逐部真实落盘、页码映射全命中、**目录页码与最终书签一致**、**两轮页码一致（已收敛）**、**数说页含补充统计（[C18]）**；PDF 层另有体积上限、**正文含每部作品名**（防字体子集吞字）、**书签含每部作品名**（页码反查的输入源）、**书签标题无重复**（重名会让页码反查取错页）。任何一条失败都会给出排查方向。
 
 > 前 13 条是 `check.js`（纯 fs）查的，`[C14]` 的体积也由它 `stat` 得到；`[C15]`-`[C17]` 要看 PDF 内部，由 `pdfprobe.js` 用 pdfjs 深检后写 `_pdfprobe.json` 收据，`check.js` 读它判定（跑 `npm run check` 会自动先跑探针；单独跑用 `npm run probe`）。
 
@@ -32,7 +32,7 @@ npm run audit
 
 | 收据 | 内容 |
 | --- | --- |
-| `_check.json` | 17 条断言逐条结果、`exitCode`、被检查产物的 sha256 前 16 位 |
+| `_check.json` | 18 条断言逐条结果、`exitCode`、被检查产物的 sha256 前 16 位 |
 | `_pdfprobe.json` | PDF 层探针结果：页数、体积、书签条数、正文提取字数、两类缺失清单（`[C15]`/`[C16]` 的依据）与重复书签清单（`[C17]` 的依据） |
 | `_audit.json` | 每部状态汇总（`complete` / `soft` / `hard` / `missing` / `broken`）、`needFix` |
 | `receipts/<作品名>.json` | **每部一份**：状态 + 调研稿哈希 + 缺哪些字段 + 问题清单 |
@@ -44,13 +44,13 @@ npm run audit
 
 ## CI 跑的是**真流程**（不只是语法检查）
 
-`.github/workflows/ci.yml` 的 fixture job 会：程序生成两枚极小测试字体（`make_smoke_font.py`，无需下载霞鹜文楷）→ 跑满两轮 `pipeline` → `check` → 负向测试：封面缺失必须报 `[C7]`、页码漂移必须报 `[C12]`、交付说明必须如实标注未核验，另加 ④ 书名撞作品名时页码不得取到前置页、④b 注入重复书签必须报 `[C17]`、⑤ `--force` 不得删用户目录里的非本工具文件、⑥ 交付包不得含本机绝对路径、⑦ 伪造收据不得被标成 ✅。最后再跑一遍 **novel 领域包**（`fixture-novel`：两轮 pipeline → check 全绿 → audit），并做负向测试 ⑧：novel 下**声明了**不存在的 cover 仍必须报 `[C7]`（放宽只针对「未声明」）。
+仓库根的 `.github/workflows/ci.yml`（**单独安装的 skill 副本不含 `.github/`，这一节需回仓库核验**）的 fixture job 会：程序生成两枚极小测试字体（`make_smoke_font.py`，无需下载霞鹜文楷）→ 跑满两轮 `pipeline` → `check` → 负向测试：封面缺失必须报 `[C7]`、页码漂移必须报 `[C12]`、交付说明必须如实标注未核验，另加 ④ 书名撞作品名时页码不得取到前置页、④b 注入重复书签必须报 `[C17]`、⑤ `--force` 不得删用户目录里的非本工具文件、⑥ 交付包不得含本机绝对路径、⑦ 伪造收据不得被标成 ✅。最后再跑一遍 **novel 领域包**（`fixture-novel`：两轮 pipeline → check 全绿 → audit），并做负向测试 ⑧：novel 下**声明了**不存在的 cover 仍必须报 `[C7]`（放宽只针对「未声明」）。
 
 为什么值得单独建一条流水线：1.4.4 修掉的那批真 bug（`COVERS` 未定义、封面断言恒真、pagemap 掐断 `&&` 链）`node --check` 一条都抓不到。
 
 ## 从零复现（完整自测）
 
-`fixture/` 是一份**可复现的最小数据集**（2 部虚构作品：一部全字段，一部是**故意残缺的降级样本**「测试小作品」——缺 `source`/`genres`/`production` 三个必填字段、synopsis 只有 60 字，低于 120 硬下限），用来验证"从零开始能不能跑通"与缺省降级路径。它因此会让 `npm run audit` **预期报硬问题**（CI 里的 `npm run audit || true` 是刻意为之），但 `npm run check` 仍应全绿。其中 `anime_research/covers/` 的两张封面是**程序生成的占位图**（`docs/preview-*.png` 即由这份数据渲染）——仓库不含任何第三方作品素材。
+`fixture/` 是一份**可复现的最小数据集**（2 部虚构作品：一部全字段，一部是**故意残缺的降级样本**「测试小作品」——缺 `source`/`genres`/`production` 三个必填字段、synopsis 只有 60 字，低于 120 硬下限），用来验证"从零开始能不能跑通"与缺省降级路径。它因此会让 `npm run audit` **预期报硬问题**（CI 里的 `npm run audit || true` 是刻意为之），但 `npm run check` 仍应全绿。其中 `anime_research/covers/` 的两张封面是**程序生成的占位图**（`docs/preview-*.png` 即由这份数据渲染；`docs/` 只在仓库里，安装副本不含）——仓库不含任何第三方作品素材。
 
 `fixture-novel/` 是 **novel 领域包**的对应数据集（2 个虚构角色：**沈观澜** 含 franchise 伏笔表与 watch_order，**白鹭洲** 只给到 status/quote/accent/rating 一类常规可选字段）——验证标签切换与伏笔渲染。
 
@@ -70,7 +70,7 @@ npm run audit
 export ANIME_BOOK_ROOT=/tmp/anime-eval
 npm run base && npm run pipeline && npm run check
 
-# 3. 预期：pipeline 两轮页码一致；check 全绿（17 条）；成品 PDF 共 7 页（实测）
+# 3. 预期：pipeline 两轮页码一致；check 全绿（18 条）；成品 PDF 共 7 页（实测）
 #    注意：测试字体的字形是方块占位、字宽与真字体不同，页数可能与正式字体不一致；
 #    check 关心的是"两轮是否收敛、封面是否落盘"，与字体无关。
 ```
@@ -87,7 +87,7 @@ npm run base && npm run pipeline && npm run check
 | 检查项 | 期望 |
 |---|---|
 | `npm run pipeline` | 两轮页码一致，无 ⚠ 警告（「星海旅人」的 unit_synopses name 与 units 逐字对齐；「测试小作品」未给 unit_synopses，故不触发缺文案告警） |
-| `npm run check` | 全部通过（17 条断言） |
+| `npm run check` | 全部通过（18 条断言） |
 | `npm run audit` | 对「测试小作品」预期报硬问题（缺 3 个必填字段、synopsis 仅 60 字）；CI 里 `npm run audit \|\| true` 是刻意为之，默认退出码仍是 0 |
 | 成品页数 | 7 页（实测：封面 1 + 总览 1 + 数说收藏 1 + 星海旅人 2 + 测试小作品 1 + 封底 1） |
 | 特殊路径覆盖 | 「测试小作品」是故意残缺的降级样本（缺 source/genres/production，synopsis 仅 60 字）→ 验证缺省降级与"审计预期报硬问题"；「星海旅人」验证完整板块（两季剧透表 + 台词卡 + 系列待补清单）；封面页在完全无海报时降级为纯排印封面 |
@@ -116,6 +116,7 @@ npm run base && npm run pipeline && npm run check
 | `[C16]` | PDF 书签里找不到某部作品名 | 书签是 `_pagemap` 的唯一输入：丢了目录页码必然停在占位符。检查渲染是不是被换成了不带 `outline: true` 的方式（合并 PDF 也会丢书签） |
 | `[C15]`/`[C16]` 报「探针未能运行」 | 缺 `_pdfprobe.json` 或 pdfjs 不可用或还没渲染 | 按提示做：缺收据跑 `npm run probe`；提示"还没渲染出 PDF"就先跑 `npm run pipeline`；pdfjs 不可用在 `scripts/` 执行 `npm i`（给的是可操作中文，不再抛 `pdf-missing` 这类内部标识符） |
 | `[C17]` | 书签里出现重复的"当键用"标题（作品名/书名） | 页码反查以标题为键，重名会取到错误那一页。典型原因：**书名与某部作品名相同**（总览页标题也生成了书签）→ 目录页码会印成总览页页码。改书名，或让总览页标题不生成书签——**已修**：总览页书名改用 `div.thd-title`（非标题元素），不再生成书签。小节重名（如每部都有的「补记」）不触发本断言 |
+| `[C18]` | 数说页缺少补充统计（单元构成 / 时长估算 / 类型 TOP3 / 平均评分） | 改了 `build_anime_html.js` 的 `miniBlocks` / 数说页结构后没重跑构建；重跑 `npm run pipeline` 再 `npm run check` |
 | `[A1]` | 某部没有调研稿 | 同上 C3 |
 | `[A2]` | 调研稿 JSON 解析失败 | 按报错行修（常见是尾随逗号、中文引号） |
 | `[A3]` | 缺必填字段 | `synopsis`/`source`/`genres`/`production`/`cover` 优先级最高 |

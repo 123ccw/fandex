@@ -9,13 +9,13 @@
 
 ## 提 PR
 
-1. 改脚本后必须：`node --check <脚本>` 全过 + 在一个测试项目根跑通 `npm run pipeline && npm run check`（17 条断言全绿）
+1. 改脚本后必须：`node --check <脚本>` 全过 + 在一个测试项目根跑通 `npm run pipeline && npm run check`（18 条断言全绿）
 2. 涉及 UI 文案变动的：跑一遍 `npm run sheet`，联络表目检无方块字/溢出（字体子集会自动并入 build 脚本文案，但请确认）
 3. 版本号只有一个权威源：`SKILL.md` frontmatter 的 `metadata.version`。改它之后跑
    `node scripts/sync_version.js --fix` 同步其余清单，并用 `node scripts/sync_version.js --check` 复核
    （CI 跑的是同一条命令；`sync_version.js` 按 glob 发现清单，新增清单会被自动纳入）。当前实际管理的 6 处：
    `SKILL.md`（权威源）、`scripts/package.json`、`scripts/package-lock.json`、`.claude-plugin/marketplace.json`、
-   `fanbook/.claude-plugin/plugin.json`、`fanbook/.zcode-plugin/plugin.json`
+   `fandex/.claude-plugin/plugin.json`、`fandex/.zcode-plugin/plugin.json`
 4. 顺手跑 `npm run lint`：它校验 frontmatter、SKILL.md 的引用完整性、以及"文档里写的断言条数/坑位数"是否与
    `evals/check.js`、`references/pipeline.md` 实际一致——这三类是最容易跟着改动漂移的地方
 5. 提交信息用 Conventional Commits 风格（`feat:` / `fix:` / `docs:` / `chore:`）

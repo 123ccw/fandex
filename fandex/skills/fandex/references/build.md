@@ -27,7 +27,7 @@
 ```bash
 npm run doctor     # 环境自检（node / python+fonttools / 字体 / 浏览器 / curl / tvly / config / 重复安装；加 --net 顺带探网络）
 npm run pipeline   # 字体子集 → 两轮「构建→渲染→页码反查」，一条命令跑完
-npm run check      # 产物断言（完整性 / 页码全命中 / 无乱码 / 两轮收敛 / PDF 层，共 17 条；会自动先跑 probe）
+npm run check      # 产物断言（完整性 / 页码全命中 / 无乱码 / 两轮收敛 / PDF 层，共 18 条；会自动先跑 probe）
 npm run probe      # 只跑 PDF 层深检（pdfjs 提正文 + 读书签）→ 写 anime_build/_pdfprobe.json
 npm run audit      # 数据完备度（哪部缺字段、哪些还写着"未核实"、剧透表对不对得上）
 npm run sheet      # 生成全页联络表（目检用；也支持任意 PDF：node contact_sheet.js --pdf <路径> --out <目录> [--scale <n>]）
@@ -65,7 +65,7 @@ node anime_pagemap.js      # ④ 从书签反查每部起始页 → _pagemap.jso
 
 ## 交付
 
-推荐 `npm run pack`：产出 `<项目根>/_deliver/`，含 PDF、HTML 源、`covers/` 封面图、分享卡 PNG、来源台账与一份自动生成的交付说明。
+推荐 `npm run pack`：产出 `<项目根>/_deliver/`，含 PDF、HTML 源、`covers/` 封面图与一份自动生成的交付说明。分享卡 PNG、来源台账、EPUB 是**条件项**——先跑过 `npm run cards` / `npm run sources` / `npm run epub` 才会一并带上（缺了时交付说明里会如实写「未含」）。
 
 > 目标目录里若已有不是本工具生成的文件，`pack` 会报 `[P9]` 拒绝覆盖并列出这些文件；`--force` 只放宽"这是不是本工具上次产物"的判定，**不会删用户目录里的文件**。
 
@@ -75,7 +75,7 @@ node anime_pagemap.js      # ④ 从书签反查每部起始页 → _pagemap.jso
 
 | 行 | 来源 | 谁能证明 |
 | --- | --- | --- |
-| 产物断言 `[C1]-[C17]` | `anime_build/_check.json` | 脚本，可复现 |
+| 产物断言 `[C1]-[C18]` | `anime_build/_check.json` | 脚本，可复现 |
 | 数据完备度 `[A1]-[A10]` | `anime_build/_audit.json` | 脚本，可复现 |
 | **全页目检** | `pack --pages-reviewed` 签署 | **只有 agent 的声明**（`npm run sheet` 的 PNG 是证据材料，不是证据） |
 | **封面逐张目检** | `pack --covers-reviewed` 签署 | 同上 |

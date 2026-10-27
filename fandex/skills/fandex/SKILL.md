@@ -1,14 +1,14 @@
 ---
-name: fanbook
+name: fandex
 license: MIT
 compatibility: Requires Node.js >=20 with npm, Python 3 + fonttools/brotli (font subsetting), Playwright Chromium (or system Edge), curl and the Tavily CLI (tvly; Windows needs PYTHONIOENCODING=utf-8 for --json), and internet access for anime research (novel mode is offline).
 metadata:
   author: 123ccw
-  version: "1.9.0"
-description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册/简介 PDF"——可只给片名清单（清单也可来自对话上文或文件，无需本地视频文件），也可基于本机视频收藏库；TV/剧场版/OVA 及 Galgame 视觉小说的同类整理均适用。也用于把网文/小说的设定资料整理成"设定集/角色档案册/伏笔追踪手册/读者向无剧透图鉴 PDF"（数据来自用户本地稿件或笔记，离线完成）。产出杂志风 PDF：海报墙封面封底、无剧透简介（剧透独立成表）、结构化要点表、每部主题色章节、数说统计页、可点击目录与书签页脚，另可导出竖版分享卡 PNG。不用于：追番进度管理（这不是 tracker）、视频文件整理/重命名/媒体库刮削（Jellyfin/Emby/Plex 场景）、对已有 PDF 的格式转换、小说正文本身的写作或排版。
+  version: "1.11.1"
+description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册/简介 PDF"——可只给片名清单（清单也可来自对话上文或文件，无需本地视频文件），也可基于本机视频收藏库；TV/剧场版/OVA 及 Galgame 视觉小说的同类整理均适用。也用于把网文/小说的设定资料整理成"设定集/角色档案册/伏笔追踪手册/读者向无剧透图鉴 PDF"（数据来自用户本地稿件或笔记，离线完成）。产出杂志风 PDF：海报墙封面封底、无剧透简介（剧透独立成表）、结构化要点表、每部主题色章节、数说统计页（类型 TOP3 / 单元构成 / 平均评分 / 时长估算）、可点击目录与书签页脚，另可导出竖版分享卡 PNG。不用于：追番进度管理（这不是 tracker）、视频文件整理/重命名/媒体库刮削（Jellyfin/Emby/Plex 场景）、对已有 PDF 的格式转换、小说正文本身的写作或排版。
 ---
 
-# 番剧收藏册 PDF
+# FanDex · 番剧档案生成（番剧收藏册 / 设定集）
 
 把一份片名清单（或本机视频收藏）做成杂志风 PDF 收藏册（产品形态见 frontmatter 的 `description`，另含制作与声优、补番顺序）。**同一引擎还内置 novel 领域包**：把小说设定资料做成角色档案册与伏笔追踪手册（离线）。
 
@@ -28,18 +28,20 @@ description: Use when 用户想把番剧/动画做成"收藏册/图鉴/纪念册
 
 ## 执行流程（五步，勿跳步）
 
-- [ ] ⓪ 自检：`npm run doctor` —— 环境齐全再开工（**换机器时尤其别跳**）
+> **工作目录**：下面所有 `npm run …` 都在**本 skill 的 `scripts/` 目录**执行（首次先 `npm i`）；`<项目根>` 只放数据与产物，别在项目根跑（那里没有 package.json）。
+
+- [ ] ⓪ 自检：确认 `scripts/config.json` 的 `root` / `title` 指向**这次要做的项目**（首次从 `config.example.json` 复制后再改；指向旧项目会让产物写进别人/上一个项目）→ `npm run doctor` —— 环境齐全再开工（**换机器时尤其别跳**）
 - [ ] ① 调研：`names.txt` → 每部一份 research JSON + 官方海报（**并发 ≤2**，一次 3-4 部省 token；字段见 `references/fields.md`）
 - [ ] 🔴 CHECKPOINT：每部 research JSON 与封面文件均已落盘、查不到的字段写「未核实」而非编造 → 通过才进 ②；不通过就补齐或明确告知缺口
 - [ ] ② 合成：`npm run base`（模式 A）
 - [ ] ③ 构建：`npm run pipeline`（字体子集 + 两轮「构建→渲染→页码反查」）
 - [ ] 🔴 CHECKPOINT：两轮 `_pagemap.json` 一致、无 ⚠ 未命中 → 通过才进 ④；未命中先回查 `units[].name` 是否逐字一致
       ↳ 未收敛 → 再跑一轮 `npm run pipeline`；仍不一致 → 查该部标题长度是否变化导致分页漂移（[C12]）；若某部页码一直留「·」→ 到 ④ 看 `[C10]`（书签未命中该部）
-- [ ] ④ 验收：`npm run check`（**产物断言 17 条** [C1]-[C17]；会自动先跑 `pdfprobe` 做 PDF 层深检）→ `npm run audit`（数据完备度 [A1]-[A10]）→ **全页目检** → 封面逐张目视核对
+- [ ] ④ 验收：`npm run check`（**产物断言 18 条** [C1]-[C18]；会自动先跑 `pdfprobe` 做 PDF 层深检）→ `npm run audit`（数据完备度 [A1]-[A10]）→ **全页目检** → 封面逐张目视核对
       ↳ `check` 报错 → 按 `[C#]/[A#]/[P#]` 码查 `evals/README.md` 的错误码表（每码带修法）；`[V1]/[V2]` 只提醒不阻断
       ↳ `[C15]` 报缺字 → 文案改过没重跑子集，回 ③ 重跑 `npm run pipeline`；`[C16]` 报书签缺 → 渲染丢了 `outline`（或成品被合并过），别在渲染后做页级合并
 - [ ] 🛑 STOP：全页目检与封面逐张核对未完成（或未如实记录）**禁止**进入 ⑤
-- [ ] ⑤ 交付：`npm run pack -- --pages-reviewed --covers-reviewed`（一键产出 `_deliver/`：PDF + HTML + 分享卡 + 来源台账 + 交付说明，说明里带**核验状态表**；想同时带上手机可读的 EPUB，先跑 `npm run epub`），细节见 `references/build.md`
+- [ ] ⑤ 交付：`npm run pack -- --pages-reviewed --covers-reviewed`（归拢 `_deliver/`：PDF + HTML + `covers/` + 交付说明，说明里带**核验状态表**；分享卡要先跑 `npm run cards`、来源台账要先跑 `npm run sources` 才会一并带上；想加手机可读的 EPUB 先跑 `npm run epub`），细节见 `references/build.md`
 - [ ] 🔴 CHECKPOINT：交付说明的**核验状态表**与实际做到哪一步一致，再发出
 
 **④ 的全页目检是硬要求**：`npm run sheet` 出联络表 → **agent 亲自逐页读** `_sheets/` 的 PNG，核对空白页 / 溢出 / 封面张冠李戴 / 乱码；`check` 只能证明产物存在、页码对，**代替不了它**。（若你的环境另有视觉验收子代理，可作为可选增强接上——**它不是本 skill 的依赖**。）
@@ -93,6 +95,12 @@ npm run userdata:set -- --folder "作品名" --score 8.5 --comment "短评原文
 ```
 > `cover` 是**相对作品文件夹**的封面路径——本文示例视频库把它放在 `_其他文件/` 下，那只是示例约定，**你的库叫什么就填什么**；模式 B 靠 `config.json` 的 `vroot` 指向视频库根（脚本内是 `const VROOT = CFG.vroot`，**不要改脚本**）。`airdate` 为毫秒时间戳。
 
+模式 B 的两个**验收硬约束**（漏了会卡在 ④，不是构建问题）：
+
+- **仍要走 ① 调研**：`[C3]` 按 `base.folder` 找 `anime_research/<folder>.json`，没有就判失败——模式 B 只是 base 的来源不同，调研稿照写
+- **本地封面要被验收承认**：把封面复制进 `anime_research/covers/<folder>.jpg`，并在 research 里写 `cover: "covers/<folder>.jpg"`。只靠 `base.cover` 指向视频库的兜底渲染能出图，但 anime 域 `[C7]` 要求 research 声明 cover，不写就算失败
+- **文件夹名 → 作品名 / 季 → `units` / `eps` 与 `airdate` 的推导**由你的扫描脚本定，写进脚本注释：猜错季会让总集数、页数与时间轴一起错（`airdate` 缺失时时间轴静默丢列，见 `references/pipeline.md`）
+
 ## 项目结构（在用户选定的项目根下）
 
 ```
@@ -126,7 +134,7 @@ npm run userdata:set -- --folder "作品名" --score 8.5 --comment "短评原文
 
 - **OS**：脚本按 **Windows** 优先编写；macOS/Linux 核心流程可用（python 自动探测 python3），Windows 专属步骤需自行适配
 - **Node ≥20** + `npm i`（playwright / pdfjs-dist / @napi-rs/canvas）；**Python 3** + `pip install fonttools brotli`
-- **中文字体**：缺省用**霞鹜文楷 TTF** 放 `<项目根>/fonts/`（OFL，需自行从上游 Releases 下载）；也可用 `config.json` 的 `fonts.regular` / `fonts.medium` 指向自备 TTF——**先确认它允许嵌入与再分发**，并同步改 `credits` 的署名
+- **中文字体**：缺省用**霞鹜文楷 TTF** 放 `<项目根>/fonts/`（OFL，需自行从上游 Releases 下载）；也可用 `config.json` 的 `fonts.regular` / `fonts.medium` 指向自备 TTF——**先确认它允许嵌入与再分发**，并同步改 `credits` 的署名。**离线 / 没有霞鹜文楷**：用本机已装的 OFL 字库（Noto Sans CJK、思源黑体等）经 `ANIME_BOOK_FONT_REGULAR` / `ANIME_BOOK_FONT_MEDIUM` 指过去即可；`evals/make_smoke_font.py` 生成的测试字体**只能自测，不得进成品**（方块字形能过 `[C5]`，但册子不可读）
 - **取数工具**：`tvly`（Tavily CLI，Windows 要 `PYTHONIOENCODING=utf-8`）与 `curl`——都不随包提供
 - **agent 能力**：文件读写 + Shell + 联网搜索 + **多模态读图**（封面目检必需）。任何满足这四点的 agent（Claude Code / ZCode / Cursor / DSH 等）都能跑，无厂商绑定
 - 模式 B 另需 ffmpeg（抽帧补封面；Windows 下中文路径要用 ASCII 临时目录中转）

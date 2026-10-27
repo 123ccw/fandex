@@ -157,7 +157,7 @@ if (needFix.length) {
   console.log('\n建议先补这几部：');
   needFix.slice(0, 10).forEach((s) => console.log('  · ' + s));
 }
-console.log('\n提示：本审计是建议性的，不阻断交付；`npm run check` 才是产物断言（17 条）。');
+console.log('\n提示：本审计是建议性的，不阻断交付；`npm run check` 才是产物断言（18 条）。');
 console.log(hard ? '硬问题（缺调研稿/坏 JSON/缺必填/剧透表不对齐）会让成品出现肉眼可见的空缺 —— 建议补完再渲染。' : '没有硬问题，可以直接交付。');
 
 // ---- 退出码：默认 0 ----

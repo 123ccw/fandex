@@ -8,7 +8,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
-const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'fanbook-userdata-'));
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'fandex-userdata-'));
 const FILE = path.join(TMP, 'userdata.json');
 process.env.ANIME_BOOK_ROOT = TMP;
 process.env.ANIME_BOOK_USERDATA = FILE;

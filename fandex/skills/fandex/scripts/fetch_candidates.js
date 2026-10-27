@@ -18,7 +18,7 @@ const MANIFEST = path.join(OUT, 'manifest.json');
 const TMP = path.join(OUT, 'download.tmp');
 const COVERS = path.join(ROOT, 'anime_research', 'covers');
 const PICKED = path.join(COVERS, 'picked.jpg');
-const UA = 'Mozilla/5.0 (compatible; fanbook)';
+const UA = 'Mozilla/5.0 (compatible; fandex)';
 const LIMIT = 12, CELL_W = 300, CELL_H = 410, COLS = 4;   // 3:4.1 ≈ 封面瓦片比例
 const MIN_SIDE = 500;
 
