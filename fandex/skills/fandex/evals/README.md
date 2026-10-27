@@ -44,13 +44,13 @@ npm run audit
 
 ## CI 跑的是**真流程**（不只是语法检查）
 
-`.github/workflows/ci.yml` 的 fixture job 会：程序生成两枚极小测试字体（`make_smoke_font.py`，无需下载霞鹜文楷）→ 跑满两轮 `pipeline` → `check` → 负向测试：封面缺失必须报 `[C7]`、页码漂移必须报 `[C12]`、交付说明必须如实标注未核验，另加 ④ 书名撞作品名时页码不得取到前置页、④b 注入重复书签必须报 `[C17]`、⑤ `--force` 不得删用户目录里的非本工具文件、⑥ 交付包不得含本机绝对路径、⑦ 伪造收据不得被标成 ✅。最后再跑一遍 **novel 领域包**（`fixture-novel`：两轮 pipeline → check 全绿 → audit），并做负向测试 ⑧：novel 下**声明了**不存在的 cover 仍必须报 `[C7]`（放宽只针对「未声明」）。
+仓库根的 `.github/workflows/ci.yml`（**单独安装的 skill 副本不含 `.github/`，这一节需回仓库核验**）的 fixture job 会：程序生成两枚极小测试字体（`make_smoke_font.py`，无需下载霞鹜文楷）→ 跑满两轮 `pipeline` → `check` → 负向测试：封面缺失必须报 `[C7]`、页码漂移必须报 `[C12]`、交付说明必须如实标注未核验，另加 ④ 书名撞作品名时页码不得取到前置页、④b 注入重复书签必须报 `[C17]`、⑤ `--force` 不得删用户目录里的非本工具文件、⑥ 交付包不得含本机绝对路径、⑦ 伪造收据不得被标成 ✅。最后再跑一遍 **novel 领域包**（`fixture-novel`：两轮 pipeline → check 全绿 → audit），并做负向测试 ⑧：novel 下**声明了**不存在的 cover 仍必须报 `[C7]`（放宽只针对「未声明」）。
 
 为什么值得单独建一条流水线：1.4.4 修掉的那批真 bug（`COVERS` 未定义、封面断言恒真、pagemap 掐断 `&&` 链）`node --check` 一条都抓不到。
 
 ## 从零复现（完整自测）
 
-`fixture/` 是一份**可复现的最小数据集**（2 部虚构作品：一部全字段，一部是**故意残缺的降级样本**「测试小作品」——缺 `source`/`genres`/`production` 三个必填字段、synopsis 只有 60 字，低于 120 硬下限），用来验证"从零开始能不能跑通"与缺省降级路径。它因此会让 `npm run audit` **预期报硬问题**（CI 里的 `npm run audit || true` 是刻意为之），但 `npm run check` 仍应全绿。其中 `anime_research/covers/` 的两张封面是**程序生成的占位图**（`docs/preview-*.png` 即由这份数据渲染）——仓库不含任何第三方作品素材。
+`fixture/` 是一份**可复现的最小数据集**（2 部虚构作品：一部全字段，一部是**故意残缺的降级样本**「测试小作品」——缺 `source`/`genres`/`production` 三个必填字段、synopsis 只有 60 字，低于 120 硬下限），用来验证"从零开始能不能跑通"与缺省降级路径。它因此会让 `npm run audit` **预期报硬问题**（CI 里的 `npm run audit || true` 是刻意为之），但 `npm run check` 仍应全绿。其中 `anime_research/covers/` 的两张封面是**程序生成的占位图**（`docs/preview-*.png` 即由这份数据渲染；`docs/` 只在仓库里，安装副本不含）——仓库不含任何第三方作品素材。
 
 `fixture-novel/` 是 **novel 领域包**的对应数据集（2 个虚构角色：**沈观澜** 含 franchise 伏笔表与 watch_order，**白鹭洲** 只给到 status/quote/accent/rating 一类常规可选字段）——验证标签切换与伏笔渲染。
 

@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.11.1
+
+**文档口径修正（鲁班 Quick 体检 + 独立评委，评分 90.0 → 92.1）。** 无代码改动，只修"文档与真实行为不一致"的 7 处，并把版本/许可清单补齐。
+
+### 修的是什么
+- **执行流程补「工作目录」**：所有 `npm run …` 在 skill 的 `scripts/` 执行、首次先 `npm i`。此前只在 `build.md` 第 3 行写过，冷启动 agent 按 SKILL.md 在项目根跑会 ENOENT
+- **⓪ 自检补「先认项目根」**：`config.json` 的 `root` / `title` 必须先指向本次项目，否则整条流水线写进上一个/别人的项目（安装副本的 `config.json` 确实还指着旧项目）
+- **⑤ 与 `build.md` 的 `pack` 产出描述改准**：分享卡 / 来源台账 / EPUB 是**条件项**（先跑 `cards` / `sources` / `epub` 才有），不是"一键全有"——实测 pack 会打印"未含"
+- **模式 B 补两条验收硬约束**：① 仍要走 ① 调研（`[C3]` 按 `base.folder` 找 research JSON）；② 本地封面要落进 `anime_research/covers/` 并在 research 声明 `cover`——只靠 `base.cover` 指向视频库的兜底渲染能出图，但 anime 域 `[C7]` 判失败
+- **环境依赖补离线字体兜底**：可用本机 OFL 字库（Noto Sans CJK / 思源黑体等）经 `ANIME_BOOK_FONT_REGULAR` / `ANIME_BOOK_FONT_MEDIUM` 指过去；`evals/make_smoke_font.py` 的测试字体只能自测（方块字形能过 `[C5]`，但册子不可读）
+- **`domain-novel.md` 写明产出形态**：novel 域一次产出**一本合订册**（角色章 + 数说设定 + 伏笔进度），没有"只出伏笔追踪手册"的独立开关
+- **`evals/README.md`**：CI 与 `docs/preview-*.png` 标注"需回仓库核验"（单独安装的 skill 副本不含 `.github/`、`docs/`）
+- **`compliance.md`** 外发清理表补 `scripts/node_modules/`（≈90 MB / 577 文件的安装产物，不是技能内容）
+
+### 体检证据
+本机真实跑通：anime fixture **18/18**、novel fixture **18/18**、userdata **13/13**、删封面能正确报 `[C7]`；`lint` 0 错误 0 提醒；`version:check` 6 处一致。
+
+### 版本
+- 1.11.0 → **1.11.1**（纯文档修正，patch；6 处清单同步）
+
 ## 1.11.0
 
 **改名 + 输出/跨平台改进一起发布。** `fanbook` → **`fandex`**（fan + index／dex：番剧收藏册 / 小说设定集，本质都是"把喜欢的东西编成一本可检索、可收藏的册子"）。同时把 10-17 那次本机试验里验证过的「数说页补充统计 / 封面墙扩容 / 版式微调」正式并入主干，补上 Windows 与自定义 Python 两条环境短板，并把一直挂在分支上的 1.7.2 合规工作一并收编。旧 GitHub 仓库 URL 会自动重定向。

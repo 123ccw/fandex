@@ -65,7 +65,7 @@ node anime_pagemap.js      # ④ 从书签反查每部起始页 → _pagemap.jso
 
 ## 交付
 
-推荐 `npm run pack`：产出 `<项目根>/_deliver/`，含 PDF、HTML 源、`covers/` 封面图、分享卡 PNG、来源台账与一份自动生成的交付说明。
+推荐 `npm run pack`：产出 `<项目根>/_deliver/`，含 PDF、HTML 源、`covers/` 封面图与一份自动生成的交付说明。分享卡 PNG、来源台账、EPUB 是**条件项**——先跑过 `npm run cards` / `npm run sources` / `npm run epub` 才会一并带上（缺了时交付说明里会如实写「未含」）。
 
 > 目标目录里若已有不是本工具生成的文件，`pack` 会报 `[P9]` 拒绝覆盖并列出这些文件；`--force` 只放宽"这是不是本工具上次产物"的判定，**不会删用户目录里的文件**。
 
